@@ -1,0 +1,26 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #0f172a;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  user-select: none;
+}
+
+#game-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+canvas {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
