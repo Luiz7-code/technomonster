@@ -152,13 +152,12 @@ function drawControlsScreen() {
 
   let startY = 145;
   ctx.textAlign = 'left';
-  
-  // Código de desenho do menu que se tinha perdido restaurado aqui
+
   for (let i = 0; i < controlsList.length; i++) {
     ctx.fillStyle = '#facc15';
     ctx.font = 'bold 18px Segoe UI, sans-serif';
     ctx.fillText(controlsList[i].key, canvas.width / 2 - 250, startY);
-    
+
     ctx.fillStyle = '#ffffff';
     ctx.font = '18px Segoe UI, sans-serif';
     ctx.fillText("- " + controlsList[i].action, canvas.width / 2 - 40, startY);
@@ -257,22 +256,48 @@ function drawStartScreen() {
 }
 
 function drawEcopontoOverlay() {
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+  ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.textAlign = 'center';
+
+  // Título da Fase
   ctx.fillStyle = '#22c55e';
-  ctx.font = 'bold 38px Segoe UI, sans-serif';
-  ctx.fillText("ECOPONTO ALCANÇADO!", canvas.width / 2, canvas.height / 2 - 80);
+  ctx.font = '900 40px Segoe UI, sans-serif';
+  ctx.fillText(`FASE ${phase} CONCLUÍDA! ♻️`, canvas.width / 2, canvas.height / 2 - 110);
 
+  // Exibição da Pontuação Atual
+  let totalPts = scoreBase + Math.floor(distance);
   ctx.fillStyle = '#ffffff';
-  ctx.font = '20px Segoe UI, sans-serif';
-  ctx.fillText(`Entregou o E-Lixo da mochila!`, canvas.width / 2, canvas.height / 2 - 20);
-  ctx.fillText(`Ganhou sementes para plantar e iluminar a cidade.`, canvas.width / 2, canvas.height / 2 + 20);
+  ctx.font = 'bold 24px Segoe UI, sans-serif';
+  ctx.fillText(`Pontuação Atual: ${totalPts} PTS`, canvas.width / 2, canvas.height / 2 - 50);
 
-  ctx.fillStyle = '#facc15';
-  ctx.font = 'bold 22px Segoe UI, sans-serif';
-  ctx.fillText("Pressione ESPAÇO para continuar", canvas.width / 2, canvas.height / 2 + 80);
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = '18px Segoe UI, sans-serif';
+  ctx.fillText(`E-Lixo depositado! Você ganhou sementes para a próxima etapa.`, canvas.width / 2, canvas.height / 2 - 10);
+
+  // Configuração dos Botões
+  let btnY = canvas.height / 2 + 60;
+  let btnW = 210;
+  let btnH = 48;
+
+  // Botão 0: PRÓXIMA FASE
+  ctx.fillStyle = ecopontoOption === 0 ? '#22c55e' : '#334155';
+  ctx.fillRect(canvas.width / 2 - 220, btnY, btnW, btnH);
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 16px Segoe UI, sans-serif';
+  ctx.fillText("▶ PRÓXIMA FASE", canvas.width / 2 - 115, btnY + 30);
+
+  // Botão 1: FINALIZAR CORRIDA
+  ctx.fillStyle = ecopontoOption === 1 ? '#ef4444' : '#334155';
+  ctx.fillRect(canvas.width / 2 + 10, btnY, btnW, btnH);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillText("🏁 FINALIZAR CORRIDA", canvas.width / 2 + 115, btnY + 30);
+
+  // Instrução de Controle
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '14px Segoe UI, sans-serif';
+  ctx.fillText("USE AS SETAS (← / →) PARA SELECIONAR | ENTER PARA CONFIRMAR", canvas.width / 2, canvas.height / 2 + 140);
 
   ctx.textAlign = 'left';
 }

@@ -57,6 +57,7 @@ let gameState = 'MENU';
 let menuOption = 0;     
 let pauseOption = 0;    
 let gameOverOption = 0; 
+let ecopontoOption = 0; // 0: Próxima Fase, 1: Finalizar Corrida
 let playerName = '';
 
 // NAVEGAÇÃO DO TECLADO VIRTUAL DE FLIPERAMA
@@ -121,6 +122,7 @@ function resetGame() {
   ecopontoTimer = 0;
   scoreSaved = false;
   pauseOption = 0;
+  ecopontoOption = 0;
   nextSeaDistance = 350;
   initGroundSegments();
 
@@ -202,7 +204,6 @@ function updateWorld() {
   animTime++;
   distance += speed * 0.1;
 
-  phase = Math.floor(distance / 250) + 1;
   speed = baseSpeed + Math.floor(distance / 400) * 0.4;
 
   if (typeof player !== 'undefined' && player.update) {
@@ -323,18 +324,22 @@ function updateWorld() {
 
   if (ecopontoBuilding) {
     ecopontoBuilding.x -= speed;
-    if (typeof player !== 'undefined' && player.x + player.width >= ecopontoBuilding.x && eWasteInBag > 0) {
-      seedsInBag += eWasteInBag * 2;
-      scoreBase += eWasteInBag * 30;
-      totalCleanActions += eWasteInBag * 3;
-      eWasteInBag = 0;
+    if (typeof player !== 'undefined' && player.x + player.width >= ecopontoBuilding.x) {
+      if (eWasteInBag > 0) {
+        seedsInBag += eWasteInBag * 2;
+        scoreBase += eWasteInBag * 30;
+        totalCleanActions += eWasteInBag * 3;
+        eWasteInBag = 0;
+      }
+      ecopontoOption = 0;
       gameState = 'ECOPONTO_PAUSE';
+      ecopontoBuilding = null;
     }
-    if (ecopontoBuilding.x < -250) ecopontoBuilding = null;
   }
 }
 
 function continueFromEcoponto() {
+  phase++;
   gameState = 'PLAYING';
 }
 

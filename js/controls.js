@@ -171,11 +171,22 @@ window.addEventListener('keydown', (e) => {
     }
   }
 
-  // 7. ECOPONTO PAUSE
+  // 7. ECOPONTO PAUSE (TRANSIÇÃO DE FASE)
   if (gameState === 'ECOPONTO_PAUSE') {
-    if (e.code === 'Space' || e.code === 'Enter') {
-      continueFromEcoponto();
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA' || e.code === 'ArrowUp' || e.code === 'KeyW') {
+      ecopontoOption = 0;
+    } else if (e.code === 'ArrowRight' || e.code === 'KeyD' || e.code === 'ArrowDown' || e.code === 'KeyS') {
+      ecopontoOption = 1;
     }
+
+    if (e.code === 'Enter' || e.code === 'Space') {
+      if (ecopontoOption === 0) {
+        continueFromEcoponto();
+      } else {
+        triggerGameOver();
+      }
+    }
+    return;
   }
 
   // 8. GAME OVER
@@ -253,6 +264,27 @@ window.addEventListener('load', () => {
       const btn2X = gameCanvas.width / 2 + 10;
       if (clickX >= btn2X && clickX <= btn2X + btnW && clickY >= btnY && clickY <= btnY + btnH) {
         gameState = 'MENU';
+        return;
+      }
+    }
+
+    // Clique na Tela do Ecoponto (Transição de Fase)
+    if (gameState === 'ECOPONTO_PAUSE') {
+      const btnW = 210;
+      const btnH = 48;
+      const btnY = gameCanvas.height / 2 + 60;
+
+      // Botão 1: Próxima Fase
+      const btn1X = gameCanvas.width / 2 - 220;
+      if (clickX >= btn1X && clickX <= btn1X + btnW && clickY >= btnY && clickY <= btnY + btnH) {
+        continueFromEcoponto();
+        return;
+      }
+
+      // Botão 2: Finalizar Corrida
+      const btn2X = gameCanvas.width / 2 + 10;
+      if (clickX >= btn2X && clickX <= btn2X + btnW && clickY >= btnY && clickY <= btnY + btnH) {
+        triggerGameOver();
         return;
       }
     }
