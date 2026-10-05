@@ -1,4 +1,3 @@
-// GERENCIADOR DE ÁUDIO
 const bgMusic = new Audio('audio/djlofi-pixel-dreams-259187.mp3');
 bgMusic.loop = true;
 bgMusic.volume = 0.3;
@@ -23,7 +22,6 @@ function setupArcadeAudio() {
 }
 setupArcadeAudio();
 
-// RENDERIZAÇÃO DAS TELAS DO JOGO
 function drawGameWorld() {
   drawParallaxCity();
   drawTrees();
@@ -76,14 +74,12 @@ function drawPauseOverlay() {
   let btnW = 210;
   let btnH = 48;
 
-  // Botão 0: Continuar
   ctx.fillStyle = pauseOption === 0 ? '#22c55e' : '#334155';
   ctx.fillRect(canvas.width / 2 - 220, btnY, btnW, btnH);
   ctx.fillStyle = '#ffffff';
   ctx.font = 'bold 16px Segoe UI, sans-serif';
   ctx.fillText("▶ CONTINUAR", canvas.width / 2 - 115, btnY + 30);
 
-  // Botão 1: Sair para o Menu
   ctx.fillStyle = pauseOption === 1 ? '#ef4444' : '#334155';
   ctx.fillRect(canvas.width / 2 + 10, btnY, btnW, btnH);
   ctx.fillStyle = '#ffffff';
@@ -148,20 +144,26 @@ function drawControlsScreen() {
 
   const controlsList = [
     { key: "SETA CIMA / ESPAÇO / W", action: "Pulo Duplo" },
-    { key: "TECLA [C]", action: "Coletar Lixo Reciclável" },
-    { key: "TECLA [X]", action: "Guardar E-Lixo na Mochila" },
-    { key: "TECLA [Y]", action: "Plantar Sementes no Canteiro" },
-    { key: "SEMENTES 🌱", action: "Coleta Automática ao Encostar" }
-  ];
-
-  let startY = 125;
- const controlsList = [
-    { key: "SETA CIMA / ESPAÇO / W", action: "Pulo Duplo" },
     { key: "TECLA [C]", action: "Comer Reciclável / (E-Lixo = -1 Vida)" },
     { key: "TECLA [X]", action: "Guardar E-Lixo na Mochila" },
     { key: "TECLA [Y]", action: "Plantar Sementes no Canteiro" },
     { key: "SEMENTES 🌱", action: "Coleta Automática ao Encostar" }
   ];
+
+  let startY = 145;
+  ctx.textAlign = 'left';
+  
+  // Código de desenho do menu que se tinha perdido restaurado aqui
+  for (let i = 0; i < controlsList.length; i++) {
+    ctx.fillStyle = '#facc15';
+    ctx.font = 'bold 18px Segoe UI, sans-serif';
+    ctx.fillText(controlsList[i].key, canvas.width / 2 - 250, startY);
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '18px Segoe UI, sans-serif';
+    ctx.fillText("- " + controlsList[i].action, canvas.width / 2 - 40, startY);
+    startY += 45;
+  }
 
   let btnY = canvas.height - 90;
   ctx.fillStyle = '#ef4444';
@@ -361,7 +363,6 @@ function drawGameOverScreen() {
   ctx.textAlign = 'left';
 }
 
-// GAME LOOP PRINCIPAL
 function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 

@@ -37,7 +37,6 @@ class Player {
     this.isGrounded = false;
     let targetGroundY = null;
 
-    // 1. Colisão com Plataformas
     if (typeof platforms !== 'undefined') {
       for (let platform of platforms) {
         if (
@@ -54,7 +53,6 @@ class Player {
       }
     }
 
-    // 2. Colisão com Terreno (Asfalto vs Mar Tóxico)
     if (!this.isGrounded && typeof groundSegments !== 'undefined') {
       let playerCenterX = this.x + this.width / 2;
 
@@ -70,7 +68,7 @@ class Player {
               if (this.invulnerableTimer === 0) {
                 lives--;
                 flashRed = 20;
-                this.velocityY = -13; // Impulso para tentar sair da água
+                this.velocityY = -13; 
                 this.invulnerableTimer = 40;
                 showMessage("Caiu no Mar Tóxico! -1 Vida ☣️");
                 if (lives <= 0) {
@@ -110,13 +108,11 @@ class Player {
     ctx.rotate(tilt);
     ctx.translate(-(px + 26), -(py + 28));
 
-    // Sombra
     ctx.fillStyle = 'rgba(0,0,0,0.35)';
     ctx.beginPath();
     ctx.ellipse(px + 26, Math.min(GROUND_Y - 2, py + 55), 22, 6, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Corpo Verde Monster
     let bodyGrad = ctx.createLinearGradient(px, py, px, py + this.height);
     bodyGrad.addColorStop(0, '#4ade80');
     bodyGrad.addColorStop(1, '#15803d');
@@ -125,13 +121,11 @@ class Player {
     ctx.roundRect(px, py, this.width, this.height, [22, 22, 12, 12]);
     ctx.fill();
 
-    // Barriga
     ctx.fillStyle = '#86efac';
     ctx.beginPath();
     ctx.ellipse(px + 26, py + 38, 16, 12, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Olho
     ctx.fillStyle = '#fff';
     ctx.beginPath();
     ctx.arc(px + 34, py + 18, 15, 0, Math.PI * 2);
@@ -159,7 +153,6 @@ class Player {
       ctx.stroke();
     }
 
-    // Boca e Dentes
     ctx.fillStyle = '#0f172a';
     ctx.beginPath();
     ctx.arc(px + 30, py + 36, 13, 0, Math.PI);
@@ -169,7 +162,6 @@ class Player {
     ctx.fillRect(px + 22, py + 36, 5, 6);
     ctx.fillRect(px + 33, py + 36, 5, 6);
 
-    // Chifre
     ctx.fillStyle = '#f59e0b';
     ctx.beginPath();
     ctx.moveTo(px + 8, py + 4);

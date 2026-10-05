@@ -53,10 +53,10 @@ window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
 // ESTADOS E VARIÁVEIS GLOBAIS
-let gameState = 'MENU'; // 'MENU', 'CONTROLS', 'NICKNAME', 'START', 'PLAYING', 'PAUSED', 'ECOPONTO_PAUSE', 'GAMEOVER'
-let menuOption = 0;     // 0: Jogar, 1: Controles
-let pauseOption = 0;    // 0: Continuar, 1: Sair para o Menu
-let gameOverOption = 0; // 0: Jogar Novamente, 1: Menu Inicial
+let gameState = 'MENU'; 
+let menuOption = 0;     
+let pauseOption = 0;    
+let gameOverOption = 0; 
 let playerName = '';
 
 // NAVEGAÇÃO DO TECLADO VIRTUAL DE FLIPERAMA
@@ -209,7 +209,6 @@ function updateWorld() {
     player.update();
   }
 
-  // Mover Terrenos
   for (let i = groundSegments.length - 1; i >= 0; i--) {
     groundSegments[i].x -= speed;
     if (groundSegments[i].x + groundSegments[i].width < -300) {
@@ -217,7 +216,6 @@ function updateWorld() {
     }
   }
 
-  // Gerar novos Terrenos e Mares
   let lastSeg = groundSegments[groundSegments.length - 1];
   if (lastSeg && (lastSeg.x + lastSeg.width) < canvas.width + 600) {
     let newStartX = lastSeg.x + lastSeg.width;
@@ -258,12 +256,10 @@ function updateWorld() {
     }
   }
 
-  // Spawn de Itens e Obstáculos
   if (spawnTimer % 75 === 0) {
     spawnElements();
   }
 
-  // Ecoponto
   if (ecopontoTimer > GAME_CONFIG.ECOPONTO_INTERVAL && !ecopontoBuilding) {
     let spawnX = canvas.width + 100;
     if (!isPositionOverSea(spawnX) && !isPositionOverSea(spawnX + GAME_CONFIG.ECOPONTO_WIDTH)) {
@@ -277,7 +273,6 @@ function updateWorld() {
     items = items.filter(it => !isPositionInSafeZone(it.x, GAME_CONFIG.ITEM_SIZE) || it.y < GROUND_Y - 40);
   }
 
-  // Mover Plataformas
   for (let i = platforms.length - 1; i >= 0; i--) {
     platforms[i].x -= speed;
     if (platforms[i].x + platforms[i].width < -100) {
@@ -285,7 +280,6 @@ function updateWorld() {
     }
   }
 
-  // Mover e Coletar Sementes
   for (let i = items.length - 1; i >= 0; i--) {
     items[i].x -= speed;
 
@@ -299,7 +293,6 @@ function updateWorld() {
     if (items[i].x < -100) items.splice(i, 1);
   }
 
-  // Colisão com Obstáculos
   for (let i = obstacles.length - 1; i >= 0; i--) {
     obstacles[i].x -= speed;
     if (
@@ -323,13 +316,11 @@ function updateWorld() {
     if (obstacles[i] && obstacles[i].x < -100) obstacles.splice(i, 1);
   }
 
-  // Mover Árvores Plantadas
   for (let i = trees.length - 1; i >= 0; i--) {
     trees[i].x -= speed;
     if (trees[i].x < -100) trees.splice(i, 1);
   }
 
-  // Ecoponto Chegada
   if (ecopontoBuilding) {
     ecopontoBuilding.x -= speed;
     if (typeof player !== 'undefined' && player.x + player.width >= ecopontoBuilding.x && eWasteInBag > 0) {
@@ -376,7 +367,6 @@ function isPlayerNearItem(item) {
   return dist < 85;
 }
 
-// RENDERIZAÇÃO DO MUNDO
 function drawParallaxCity() {
   let cleanProgress = Math.min(1, totalCleanActions / 120);
 
@@ -575,7 +565,6 @@ function drawEcopontoBuilding() {
   }
 }
 
-// PERSISTÊNCIA DE RECORDES
 function saveScore(name, score) {
   if (!name || name.trim() === '') return;
   let scores = getScores();
