@@ -143,7 +143,7 @@ function drawControlsScreen() {
   ctx.fillText("🎮 CONTROLES DO JOGO", canvas.width / 2, 75);
 
   const controlsList = [
-    { key: "SETA CIMA /ESPAÇO / W", action: "Pulo / Pulo Duplo" },
+    { key: "SETA CIMA / ESPAÇO / W", action: "Pulo Duplo" },
     { key: "TECLA [C]", action: "Comer Reciclável / (E-Lixo = -1 Vida)" },
     { key: "TECLA [X]", action: "Guardar E-Lixo na Mochila" },
     { key: "TECLA [Y]", action: "Plantar Sementes no Canteiro" },
