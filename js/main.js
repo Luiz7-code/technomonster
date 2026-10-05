@@ -155,21 +155,13 @@ function drawControlsScreen() {
   ];
 
   let startY = 125;
-  controlsList.forEach((c, index) => {
-    let rowY = startY + index * 42;
-
-    ctx.fillStyle = '#1e293b';
-    ctx.fillRect(canvas.width / 2 - 230, rowY, 460, 34);
-
-    ctx.fillStyle = '#facc15';
-    ctx.font = 'bold 15px Segoe UI, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(c.key, canvas.width / 2 - 210, rowY + 22);
-
-    ctx.fillStyle = '#ffffff';
-    ctx.textAlign = 'right';
-    ctx.fillText(c.action, canvas.width / 2 + 210, rowY + 22);
-  });
+ const controlsList = [
+    { key: "SETA CIMA / ESPAÇO / W", action: "Pulo Duplo" },
+    { key: "TECLA [C]", action: "Comer Reciclável / (E-Lixo = -1 Vida)" },
+    { key: "TECLA [X]", action: "Guardar E-Lixo na Mochila" },
+    { key: "TECLA [Y]", action: "Plantar Sementes no Canteiro" },
+    { key: "SEMENTES 🌱", action: "Coleta Automática ao Encostar" }
+  ];
 
   let btnY = canvas.height - 90;
   ctx.fillStyle = '#ef4444';

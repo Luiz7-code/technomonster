@@ -110,58 +110,35 @@ window.addEventListener('keydown', (e) => {
       player.jump();
     }
 
-if (e.code === 'KeyC') {
-  for (let i = items.length - 1; i >= 0; i--) {
-    if (isPlayerNearItem(items[i])) {
-      // 1. Se for Lixo Reciclável (Ganha pontos)
-      if (items[i].type === 'RECICLAVEL') {
-        scoreBase += 20;
-        totalCleanActions += 2;
-        showMessage("+20 Pts: Reciclado! ♻️");
-        items.splice(i, 1);
-        break;
-      } 
-      // 2. Se for Lixo Eletrónico (Comer faz mal e perde 1 vida)
-      else if (items[i].type === 'ELETRONICO') {
-        lives--;
-        flashRed = 20;
-        if (typeof player !== 'undefined') {
-          player.invulnerableTimer = 35;
-        }
-        showMessage("Comeu E-Lixo Tóxico! -1 Vida ☣️");
-        items.splice(i, 1);
+    // TECLA [C]: Coletar lixo reciclável OU comer e-lixo (perde 1 vida)
+    if (e.code === 'KeyC') {
+      for (let i = items.length - 1; i >= 0; i--) {
+        if (isPlayerNearItem(items[i])) {
+          if (items[i].type === 'RECICLAVEL') {
+            scoreBase += 20;
+            totalCleanActions += 2;
+            showMessage("+20 Pts: Reciclado! ♻️");
+            items.splice(i, 1);
+            break;
+          } else if (items[i].type === 'ELETRONICO') {
+            lives--;
+            flashRed = 20;
+            if (typeof player !== 'undefined') {
+              player.invulnerableTimer = 35;
+            }
+            showMessage("Comeu E-Lixo Tóxico! -1 Vida ☣️");
+            items.splice(i, 1);
 
-        if (lives <= 0) {
-          triggerGameOver();
+            if (lives <= 0) {
+              triggerGameOver();
+            }
+            break;
+          }
         }
-        break;
       }
     }
-  }
-}
-```[cite: 2, 4, 5]
 
----
-
-### Atualização opcional da lista de controles no `main.js`
-
-Se quiser atualizar a descrição na tela de instruções no ficheiro **`main.js`**, altere a lista `controlsList` na função `drawControlsScreen()`[cite: 3]:
-
-```javascript
-const controlsList = [
-  { key: "SETA CIMA / ESPAÇO / W", action: "Pulo Duplo" },
-  { key: "TECLA [C]", action: "Comer Reciclável / (E-Lixo = -1 Vida)" },
-  { key: "TECLA [X]", action: "Guardar E-Lixo na Mochila" },
-  { key: "TECLA [Y]", action: "Plantar Sementes no Canteiro" },
-  { key: "SEMENTES 🌱", action: "Coleta Automática ao Encostar" }
-];
-```[cite: 3]
-
-Com essa alteração:
-* Ao apertar **C** perto de um item reciclável, o jogador recicla e pontua[cite: 2].
-* Ao apertar **C** perto de um e-lixo, o monstro comete o erro de comê-lo, perde 1 vida e a tela pisca a vermelho[cite: 2, 4, 5].
-* Para recolher o e-lixo com segurança sem perder vida, o jogador continuará a usar a tecla **[X]** para guardá-lo na mochila[cite: 2].
-
+    // TECLA [X]: Guardar E-Lixo na mochila
     if (e.code === 'KeyX') {
       for (let i = items.length - 1; i >= 0; i--) {
         if (items[i].type === 'ELETRONICO' && isPlayerNearItem(items[i])) {
@@ -174,6 +151,7 @@ Com essa alteração:
       }
     }
 
+    // TECLA [Y]: Plantar sementes
     if (e.code === 'KeyY') {
       if (seedsInBag > 0) {
         for (let i = items.length - 1; i >= 0; i--) {
