@@ -1,16 +1,16 @@
 // CONFIGURAÇÕES E PARÂMETROS DO JOGO
 const GAME_CONFIG = {
-  SCALE: 1.25,
-  PLAYER_WIDTH: 48,
-  PLAYER_HEIGHT: 60,
-  OBSTACLE_SIZE: 40,
-  ITEM_SIZE: 28,
-  PLATFORM_HEIGHT: 22,
-  ECOPONTO_WIDTH: 160,
-  ECOPONTO_HEIGHT: 200,
+  SCALE: 1.35,
+  PLAYER_WIDTH: 56,
+  PLAYER_HEIGHT: 72,
+  OBSTACLE_SIZE: 48,
+  ITEM_SIZE: 32,
+  PLATFORM_HEIGHT: 26,
+  ECOPONTO_WIDTH: 180,
+  ECOPONTO_HEIGHT: 230,
 
-  ECOPONTO_SAFE_ZONE_BEFORE: 320,
-  ECOPONTO_SAFE_ZONE_AFTER: 320,
+  ECOPONTO_SAFE_ZONE_BEFORE: 350,
+  ECOPONTO_SAFE_ZONE_AFTER: 350,
   ECOPONTO_INTERVAL: 1100,
 
   SEA_BUBBLE_SPEED: 0.025,
@@ -21,8 +21,8 @@ const GAME_CONFIG = {
     COLOR_BANNER_BG: 'rgba(6, 78, 59, 0.85)',
     COLOR_TITLE: '#6ee7b7',
     PLAT_COUNT: 5,
-    PLAT_SPACING: 200,
-    ITEM_CHANCE: 0.20,
+    PLAT_SPACING: 220,
+    ITEM_CHANCE: 0.65, // Aumentado para gerar muito mais lixo no mar
     MIN_DISTANCE: 400
   },
 
@@ -32,8 +32,8 @@ const GAME_CONFIG = {
     COLOR_BANNER_BG: 'rgba(12, 74, 110, 0.9)',
     COLOR_TITLE: '#7dd3fc',
     PLAT_COUNT: 11,
-    PLAT_SPACING: 210,
-    ITEM_CHANCE: 0.30,
+    PLAT_SPACING: 230,
+    ITEM_CHANCE: 0.85, // Aumentado para gerar abundância de lixo no mega mar
     SPAWN_CHANCE: 0.25
   }
 };
@@ -42,12 +42,12 @@ const GAME_CONFIG = {
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-let GROUND_Y = window.innerHeight - 100;
+let GROUND_Y = window.innerHeight - 110;
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  GROUND_Y = canvas.height - 100;
+  GROUND_Y = canvas.height - 110;
 }
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
@@ -57,7 +57,7 @@ let gameState = 'MENU';
 let menuOption = 0;     
 let pauseOption = 0;    
 let gameOverOption = 0; 
-let ecopontoOption = 0; // 0: Próxima Fase, 1: Finalizar Corrida
+let ecopontoOption = 0;
 let playerName = '';
 
 // NAVEGAÇÃO DO TECLADO VIRTUAL DE FLIPERAMA
@@ -76,7 +76,7 @@ let phase = 1;
 let distance = 0;
 let scoreBase = 0;
 let totalCleanActions = 0;
-let baseSpeed = 4.6;
+let baseSpeed = 5.3; // Velocidade inicial aumentada em 15% (antes 4.6)
 let speed = baseSpeed;
 let flashRed = 0;
 let animTime = 0;
@@ -235,15 +235,21 @@ function updateWorld() {
 
       for (let p = 0; p < seaCfg.PLAT_COUNT; p++) {
         let pX = newStartX + 70 + p * seaCfg.PLAT_SPACING;
-        let pY = GROUND_Y - 80 - (p % 2 === 0 ? 0 : 35);
-        let pW = 110 + Math.random() * 25;
+        let pY = GROUND_Y - 90 - (p % 2 === 0 ? 0 : 40);
+        let pW = 120 + Math.random() * 30;
 
         platforms.push({ x: pX, y: pY, width: pW });
 
+        // Maior frequência e priorização de lixo e e-lixo no mar
         if (Math.random() < seaCfg.ITEM_CHANCE) {
-          let itemTypes = ['RECICLAVEL', 'SEMENTE', 'ELETRONICO'];
+          let itemTypes = ['RECICLAVEL', 'ELETRONICO', 'RECICLAVEL', 'ELETRONICO', 'SEMENTE'];
           let chosenItem = itemTypes[Math.floor(Math.random() * itemTypes.length)];
-          items.push({ x: pX + pW / 2, y: pY - 25, type: chosenItem });
+          items.push({ 
+            x: pX + pW / 2, 
+            y: pY - 28, 
+            type: chosenItem,
+            variant: Math.floor(Math.random() * 3)
+          });
         }
       }
 
@@ -349,16 +355,26 @@ function spawnElements() {
 
   let rand = Math.random();
   if (rand < 0.4) {
-    let platY = GROUND_Y - 100 - Math.random() * 50;
-    let platW = 140 + Math.random() * 50;
+    let platY = GROUND_Y - 110 - Math.random() * 50;
+    let platW = 150 + Math.random() * 50;
     platforms.push({ x: spawnX, y: platY, width: platW });
 
     let itemType = Math.random() < 0.5 ? 'RECICLAVEL' : 'ELETRONICO';
-    items.push({ x: spawnX + platW / 2, y: platY - 25, type: itemType });
+    items.push({ 
+      x: spawnX + platW / 2, 
+      y: platY - 28, 
+      type: itemType, 
+      variant: Math.floor(Math.random() * 3) 
+    });
   } else if (rand < 0.8) {
     let types = ['RECICLAVEL', 'ELETRONICO', 'CANTEIRO', 'SEMENTE'];
     let chosenType = types[Math.floor(Math.random() * types.length)];
-    items.push({ x: spawnX, y: GROUND_Y - 25, type: chosenType });
+    items.push({ 
+      x: spawnX, 
+      y: GROUND_Y - 28, 
+      type: chosenType, 
+      variant: Math.floor(Math.random() * 3) 
+    });
   } else {
     obstacles.push({ x: spawnX, y: GROUND_Y - GAME_CONFIG.OBSTACLE_SIZE, width: GAME_CONFIG.OBSTACLE_SIZE, height: GAME_CONFIG.OBSTACLE_SIZE });
   }
@@ -369,12 +385,14 @@ function isPlayerNearItem(item) {
   let playerCenterX = player.x + player.width / 2;
   let playerCenterY = player.y + player.height / 2;
   let dist = Math.hypot(playerCenterX - item.x, playerCenterY - item.y);
-  return dist < 85;
+  return dist < 95;
 }
 
+// CENA URBAN - PRÉDIOS GIGANTES
 function drawParallaxCity() {
   let cleanProgress = Math.min(1, totalCleanActions / 120);
 
+  // Céu
   let skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
   if (cleanProgress < 1) {
     skyGrad.addColorStop(0, interpolateColor('#0f172a', '#38bdf8', cleanProgress));
@@ -387,40 +405,44 @@ function drawParallaxCity() {
   ctx.fillStyle = skyGrad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // Sol
   let sunColor = interpolateColor('rgba(234, 179, 8, 0.25)', 'rgba(250, 204, 21, 0.95)', cleanProgress);
   ctx.fillStyle = sunColor;
   ctx.beginPath();
-  ctx.arc(canvas.width - 150, 100, 75, 0, Math.PI * 2);
+  ctx.arc(canvas.width - 160, 110, 85, 0, Math.PI * 2);
   ctx.fill();
 
-  let p1 = Math.floor((distance * 1.2) % 1200);
+  // Camada 1: Prédios do fundo (até 620px de altura)
+  let p1 = Math.floor((distance * 1.2) % 1400);
   let bgBuildingColor = interpolateColor('#1e1b2e', '#64748b', cleanProgress);
   ctx.fillStyle = bgBuildingColor;
-  for (let x = -1200; x < canvas.width + 1200; x += 220) {
+  for (let x = -1400; x < canvas.width + 1400; x += 300) {
     let rx = Math.floor(x - p1);
-    ctx.fillRect(rx, GROUND_Y - 280, 130, 280);
-    ctx.fillRect(rx + 140, GROUND_Y - 240, 90, 240);
+    ctx.fillRect(rx, GROUND_Y - 620, 190, 620);
+    ctx.fillRect(rx + 200, GROUND_Y - 520, 130, 520);
   }
 
-  let p2 = Math.floor((distance * 2.5) % 1200);
+  // Camada 2: Prédios da frente (480px de altura)
+  let p2 = Math.floor((distance * 2.5) % 1400);
   const buildingColors = ['#f43f5e', '#fb923c', '#fbbf24', '#818cf8', '#38bdf8'];
 
-  for (let x = -1200; x < canvas.width + 1200; x += 190) {
+  for (let x = -1400; x < canvas.width + 1400; x += 250) {
     let rx = Math.floor(x - p2);
-    let bIndex = Math.abs(Math.floor(x / 190)) % buildingColors.length;
+    let bIndex = Math.abs(Math.floor(x / 250)) % buildingColors.length;
     let finalColor = interpolateColor('#334155', buildingColors[bIndex], cleanProgress);
     ctx.fillStyle = finalColor;
-    ctx.fillRect(rx, GROUND_Y - 240, 140, 240);
+    ctx.fillRect(rx, GROUND_Y - 480, 180, 480);
 
     ctx.fillStyle = cleanProgress > 0.5 ? '#fef08a' : '#f59e0b';
-    ctx.fillRect(rx + 20, GROUND_Y - 220, 18, 18);
-    ctx.fillRect(rx + 60, GROUND_Y - 220, 18, 18);
-    ctx.fillRect(rx + 100, GROUND_Y - 220, 18, 18);
-    ctx.fillRect(rx + 20, GROUND_Y - 170, 18, 18);
-    ctx.fillRect(rx + 60, GROUND_Y - 170, 18, 18);
-    ctx.fillRect(rx + 100, GROUND_Y - 170, 18, 18);
+    const windowRows = [440, 380, 320, 260, 200, 140, 80];
+    windowRows.forEach(wY => {
+      ctx.fillRect(rx + 24, GROUND_Y - wY, 26, 26);
+      ctx.fillRect(rx + 77, GROUND_Y - wY, 26, 26);
+      ctx.fillRect(rx + 130, GROUND_Y - wY, 26, 26);
+    });
   }
 
+  // Pista / Chão / Mar de Lixo
   let activeSeaConfig = null;
   let activeSeaTypeStr = null;
 
@@ -433,7 +455,7 @@ function drawParallaxCity() {
         ctx.fillRect(renderX, GROUND_Y, seg.width, canvas.height - GROUND_Y);
 
         ctx.fillStyle = interpolateColor('#334155', '#fde047', cleanProgress);
-        ctx.fillRect(renderX, GROUND_Y, seg.width, 7);
+        ctx.fillRect(renderX, GROUND_Y, seg.width, 8);
       } else if (seg.type === 'SEA') {
         let seaCfg = seg.seaType === 'MEGA' ? GAME_CONFIG.SEA_MEGA : GAME_CONFIG.SEA_NORMAL;
         activeSeaConfig = seaCfg;
@@ -443,31 +465,31 @@ function drawParallaxCity() {
         ctx.fillRect(renderX, GROUND_Y, seg.width, canvas.height - GROUND_Y);
 
         ctx.fillStyle = seaCfg.COLOR_WAVE;
-        for (let bx = Math.max(0, renderX); bx < Math.min(canvas.width, renderX + seg.width); bx += 24) {
-          let waveY = GROUND_Y + Math.sin((animTime * GAME_CONFIG.SEA_BUBBLE_SPEED) + bx * 0.04) * 4;
+        for (let bx = Math.max(0, renderX); bx < Math.min(canvas.width, renderX + seg.width); bx += 26) {
+          let waveY = GROUND_Y + Math.sin((animTime * GAME_CONFIG.SEA_BUBBLE_SPEED) + bx * 0.04) * 5;
           ctx.beginPath();
-          ctx.arc(bx, waveY, 6, 0, Math.PI * 2);
+          ctx.arc(bx, waveY, 7, 0, Math.PI * 2);
           ctx.fill();
         }
 
         ctx.fillStyle = '#1e293b';
-        ctx.fillRect(renderX - 6, GROUND_Y, 6, 35);
-        ctx.fillRect(renderX + seg.width, GROUND_Y, 6, 35);
+        ctx.fillRect(renderX - 7, GROUND_Y, 7, 40);
+        ctx.fillRect(renderX + seg.width, GROUND_Y, 7, 40);
       }
     }
   }
 
   if (activeSeaConfig) {
     ctx.fillStyle = activeSeaConfig.COLOR_BANNER_BG;
-    ctx.fillRect(0, canvas.height - 42, canvas.width, 42);
+    ctx.fillRect(0, canvas.height - 45, canvas.width, 45);
 
     ctx.fillStyle = activeSeaConfig.COLOR_TITLE;
-    ctx.font = 'bold 16px Segoe UI, sans-serif';
+    ctx.font = 'bold 17px Segoe UI, sans-serif';
     ctx.textAlign = 'center';
     let title = activeSeaTypeStr === 'MEGA' 
       ? `⚡ DESAFIO ESPECIAL: MEGA MAR DE LIXO TÓXICO!` 
       : `🌊 TRAVESSIA: MAR DE LIXO`;
-    ctx.fillText(title, canvas.width / 2, canvas.height - 16);
+    ctx.fillText(title, canvas.width / 2, canvas.height - 18);
     ctx.textAlign = 'left';
   }
 }
@@ -476,7 +498,7 @@ function drawFloatingMessages() {
   for (let i = floatingMessages.length - 1; i >= 0; i--) {
     let msg = floatingMessages[i];
     ctx.fillStyle = `rgba(250, 204, 21, ${msg.alpha})`;
-    ctx.font = 'bold 16px Segoe UI, sans-serif';
+    ctx.font = 'bold 17px Segoe UI, sans-serif';
     ctx.fillText(msg.text, msg.x, msg.y);
     msg.y -= 1;
     msg.alpha -= 0.02;
@@ -489,41 +511,97 @@ function drawPlatforms() {
     ctx.fillStyle = '#334155';
     ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.width, GAME_CONFIG.PLATFORM_HEIGHT);
     ctx.fillStyle = '#38bdf8';
-    ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.width, 4);
+    ctx.fillRect(Math.floor(p.x), Math.floor(p.y), p.width, 5);
   }
 }
 
+// DESENHO VISUAL DOS ITENS (3 VARIANTES PARA CADA)
 function drawItems() {
   for (let item of items) {
     let rx = Math.floor(item.x);
     let ry = Math.floor(item.y);
+    let variant = item.variant || 0;
 
     if (item.type === 'RECICLAVEL') {
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(rx - 12, ry - 12, 24, 24);
+      if (variant === 0) {
+        // Garrafa Plástica
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(rx - 7, ry - 10, 14, 22);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(rx - 7, ry - 3, 14, 8);
+        ctx.fillStyle = '#e0f2fe';
+        ctx.fillRect(rx - 4, ry - 14, 8, 4);
+      } else if (variant === 1) {
+        // Lata de Alumínio
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(rx - 8, ry - 12, 16, 24);
+        ctx.fillStyle = '#cbd5e1';
+        ctx.fillRect(rx - 8, ry - 12, 16, 3);
+        ctx.fillRect(rx - 8, ry + 9, 16, 3);
+        ctx.fillStyle = '#f87171';
+        ctx.fillRect(rx - 5, ry - 9, 3, 18);
+      } else {
+        // Caixa de Papelão / Tetra Pak
+        ctx.fillStyle = '#d97706';
+        ctx.fillRect(rx - 10, ry - 12, 20, 24);
+        ctx.fillStyle = '#fef08a';
+        ctx.fillRect(rx - 10, ry - 2, 20, 6);
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(rx - 10, ry - 12, 20, 4);
+      }
+
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 11px sans-serif';
-      ctx.fillText("[C] PEGAR", rx - 24, ry - 14);
+      ctx.fillText("[C] PEGAR", rx - 24, ry - 18);
+
     } else if (item.type === 'ELETRONICO') {
-      ctx.fillStyle = '#a855f7';
-      ctx.fillRect(rx - 12, ry - 12, 24, 24);
+      if (variant === 0) {
+        // Smartphone
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(rx - 8, ry - 14, 16, 26);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(rx - 6, ry - 11, 12, 20);
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.arc(rx, ry + 10, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (variant === 1) {
+        // Placa de Circuito
+        ctx.fillStyle = '#15803d';
+        ctx.fillRect(rx - 12, ry - 10, 24, 20);
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(rx - 10, ry - 10, 3, 20);
+        ctx.fillRect(rx + 7, ry - 10, 3, 20);
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(rx - 4, ry - 5, 8, 10);
+      } else {
+        // Monitor CRT Antigo
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(rx - 12, ry - 12, 24, 22);
+        ctx.fillStyle = '#0284c7';
+        ctx.fillRect(rx - 9, ry - 9, 18, 14);
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(rx + 6, ry + 6, 3, 3);
+      }
+
       ctx.fillStyle = '#facc15';
       ctx.font = 'bold 11px sans-serif';
-      ctx.fillText("[X] GUARDAR", rx - 30, ry - 14);
+      ctx.fillText("[X] GUARDAR", rx - 32, ry - 18);
+
     } else if (item.type === 'SEMENTE') {
       ctx.fillStyle = '#22c55e';
       ctx.beginPath();
-      ctx.arc(rx, ry, 12, 0, Math.PI * 2);
+      ctx.arc(rx, ry, 14, 0, Math.PI * 2);
       ctx.fill();
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 11px sans-serif';
-      ctx.fillText("🌱 SEMENTE", rx - 26, ry - 16);
+      ctx.fillText("🌱 SEMENTE", rx - 28, ry - 18);
     } else if (item.type === 'CANTEIRO') {
       ctx.fillStyle = '#b45309';
-      ctx.fillRect(rx - 22, ry, 44, 18);
+      ctx.fillRect(rx - 25, ry, 50, 20);
       ctx.fillStyle = '#facc15';
       ctx.font = 'bold 11px sans-serif';
-      ctx.fillText("[Y] PLANTAR", rx - 28, ry - 6);
+      ctx.fillText("[Y] PLANTAR", rx - 30, ry - 8);
     }
   }
 }
@@ -539,10 +617,10 @@ function drawTrees() {
   for (let tree of trees) {
     let rx = Math.floor(tree.x);
     ctx.fillStyle = '#78350f';
-    ctx.fillRect(rx - 8, GROUND_Y - 60, 16, 60);
+    ctx.fillRect(rx - 10, GROUND_Y - 75, 20, 75);
     ctx.fillStyle = '#22c55e';
     ctx.beginPath();
-    ctx.arc(rx, GROUND_Y - 65, 30, 0, Math.PI * 2);
+    ctx.arc(rx, GROUND_Y - 80, 38, 0, Math.PI * 2);
     ctx.fill();
   }
 }
@@ -557,16 +635,16 @@ function drawEcopontoBuilding() {
 
     ctx.fillStyle = '#047857';
     ctx.beginPath();
-    ctx.moveTo(rx - 12, bY);
-    ctx.lineTo(rx + ecopontoBuilding.width / 2, bY - 35);
-    ctx.lineTo(rx + ecopontoBuilding.width + 12, bY);
+    ctx.moveTo(rx - 14, bY);
+    ctx.lineTo(rx + ecopontoBuilding.width / 2, bY - 40);
+    ctx.lineTo(rx + ecopontoBuilding.width + 14, bY);
     ctx.fill();
 
     ctx.fillStyle = '#facc15';
-    ctx.fillRect(rx + 15, bY + 40, ecopontoBuilding.width - 30, 40);
+    ctx.fillRect(rx + 18, bY + 45, ecopontoBuilding.width - 36, 45);
     ctx.fillStyle = '#000000';
-    ctx.font = 'bold 16px Segoe UI, sans-serif';
-    ctx.fillText("♻ ECOPONTO", rx + 22, bY + 65);
+    ctx.font = 'bold 18px Segoe UI, sans-serif';
+    ctx.fillText("♻ ECOPONTO", rx + 24, bY + 74);
   }
 }
 
