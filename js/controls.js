@@ -16,6 +16,7 @@ function handleVirtualKeyPress(char) {
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
 
+  // 1. MENU PRINCIPAL
   if (gameState === 'MENU') {
     if (e.code === 'ArrowUp' || e.code === 'KeyW') menuOption = 0;
     if (e.code === 'ArrowDown' || e.code === 'KeyS') menuOption = 1;
@@ -26,6 +27,7 @@ window.addEventListener('keydown', (e) => {
     return;
   }
 
+  // 2. CONTROLES
   if (gameState === 'CONTROLS') {
     if (e.code === 'Enter' || e.code === 'Space' || e.code === 'Escape') {
       gameState = 'MENU';
@@ -33,6 +35,7 @@ window.addEventListener('keydown', (e) => {
     return;
   }
 
+  // 3. SELEÇÃO DE NICKNAME / JOYSTICK FLIPERAMA
   if (gameState === 'NICKNAME') {
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
       e.preventDefault();
@@ -61,6 +64,7 @@ window.addEventListener('keydown', (e) => {
     return;
   }
 
+  // 4. TELA INICIAL (START)
   if (gameState === 'START') {
     if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'Enter' || e.code === 'KeyW') {
       gameState = 'PLAYING';
@@ -68,6 +72,7 @@ window.addEventListener('keydown', (e) => {
     return;
   }
 
+  // 5. TECLA DE PAUSA (ENTRAR / SAIR DE PAUSE)
   if (gameState === 'PLAYING') {
     if (e.code === 'KeyP' || e.code === 'Escape') {
       e.preventDefault();
@@ -82,6 +87,7 @@ window.addEventListener('keydown', (e) => {
       return;
     }
 
+    // Navegação no Menu de Pause
     if (e.code === 'ArrowLeft' || e.code === 'KeyA' || e.code === 'ArrowUp' || e.code === 'KeyW') {
       pauseOption = 0;
     } else if (e.code === 'ArrowRight' || e.code === 'KeyD' || e.code === 'ArrowDown' || e.code === 'KeyS') {
@@ -98,11 +104,13 @@ window.addEventListener('keydown', (e) => {
     return;
   }
 
+  // 6. DURANTE O JOGO (PLAYING)
   if (gameState === 'PLAYING') {
     if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
       player.jump();
     }
 
+    // TECLA [C]: Coletar lixo reciclável OU comer e-lixo (perde 1 vida)
     if (e.code === 'KeyC') {
       for (let i = items.length - 1; i >= 0; i--) {
         if (isPlayerNearItem(items[i])) {
@@ -130,6 +138,7 @@ window.addEventListener('keydown', (e) => {
       }
     }
 
+    // TECLA [X]: Guardar E-Lixo na mochila
     if (e.code === 'KeyX') {
       for (let i = items.length - 1; i >= 0; i--) {
         if (items[i].type === 'ELETRONICO' && isPlayerNearItem(items[i])) {
@@ -142,6 +151,7 @@ window.addEventListener('keydown', (e) => {
       }
     }
 
+    // TECLA [Y]: Plantar sementes
     if (e.code === 'KeyY') {
       if (seedsInBag > 0) {
         for (let i = items.length - 1; i >= 0; i--) {
@@ -161,12 +171,14 @@ window.addEventListener('keydown', (e) => {
     }
   }
 
+  // 7. ECOPONTO PAUSE
   if (gameState === 'ECOPONTO_PAUSE') {
     if (e.code === 'Space' || e.code === 'Enter') {
       continueFromEcoponto();
     }
   }
 
+  // 8. GAME OVER
   if (gameState === 'GAMEOVER') {
     if (e.code === 'ArrowLeft' || e.code === 'KeyA') gameOverOption = 0;
     if (e.code === 'ArrowRight' || e.code === 'KeyD') gameOverOption = 1;
@@ -182,12 +194,14 @@ window.addEventListener('keydown', (e) => {
     }
   }
 
+  // REINICIAR (RELOAD)
   if (e.code === 'KeyR' && (gameState === 'GAMEOVER' || gameState === 'PLAYING')) {
     resetGame();
     gameState = 'PLAYING';
   }
 });
 
+// INTERAÇÃO VIA CLIQUE DE MOUSE / TOQUE
 window.addEventListener('load', () => {
   const gameCanvas = document.getElementById('gameCanvas');
   if (!gameCanvas) return;
@@ -197,6 +211,7 @@ window.addEventListener('load', () => {
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
 
+    // Teclado Virtual Nickname
     if (gameState === 'NICKNAME') {
       const keyWidth = 48;
       const keyHeight = 48;
@@ -221,17 +236,20 @@ window.addEventListener('load', () => {
       return;
     }
 
+    // Clique no Overlay de Pausa
     if (gameState === 'PAUSED') {
       const btnW = 210;
       const btnH = 48;
       const btnY = gameCanvas.height / 2 + 10;
 
+      // Botão Continuar
       const btn1X = gameCanvas.width / 2 - 220;
       if (clickX >= btn1X && clickX <= btn1X + btnW && clickY >= btnY && clickY <= btnY + btnH) {
         gameState = 'PLAYING';
         return;
       }
 
+      // Botão Sair
       const btn2X = gameCanvas.width / 2 + 10;
       if (clickX >= btn2X && clickX <= btn2X + btnW && clickY >= btnY && clickY <= btnY + btnH) {
         gameState = 'MENU';
@@ -239,6 +257,7 @@ window.addEventListener('load', () => {
       }
     }
 
+    // Botão de Pausa no Canto Superior
     if (clickX >= gameCanvas.width - 110 && clickX <= gameCanvas.width - 30 && clickY >= 12 && clickY <= 44) {
       if (gameState === 'PLAYING') {
         pauseOption = 0;
