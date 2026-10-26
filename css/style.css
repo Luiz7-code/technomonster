@@ -4,12 +4,19 @@
   box-sizing: border-box;
 }
 
+@font-face {
+  font-family: 'BostonAngel';
+  src: url('../fonts/Boston Angel Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 html, body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #0f172a;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #030712;
+  font-family: 'BostonAngel', 'Segoe UI', Tahoma, sans-serif;
   user-select: none;
 }
 
@@ -17,10 +24,14 @@ html, body {
   width: 100vw;
   height: 100vh;
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 canvas {
   width: 100vw;
   height: 100vh;
   display: block;
+  box-shadow: 0 0 35px rgba(56, 189, 248, 0.25);
 }
