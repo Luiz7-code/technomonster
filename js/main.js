@@ -47,58 +47,17 @@ function drawGameWorld() {
 
 // EFEITO CRT (SCANLINES & VINHETA DE MONITOR RETRO)
 function drawCRTOverlay() {
-  // Scanlines
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.08)';
-  for (let y = 0; y < canvas.height; y += 4) {
-    ctx.fillRect(0, y, canvas.width, 2);
-  }
-
-  // Vinheta Radial
-  let vignetteGrad = ctx.createRadialGradient(
-    canvas.width / 2, canvas.height / 2, canvas.width * 0.4,
-    canvas.width / 2, canvas.height / 2, canvas.width * 0.75
-  );
-  vignetteGrad.addColorStop(0, 'rgba(0,0,0,0)');
-  vignetteGrad.addColorStop(1, 'rgba(0, 0, 0, 0.45)');
-  ctx.fillStyle = vignetteGrad;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // A restrained edge shade keeps the hand-drawn palette readable.
+  const shade=ctx.createLinearGradient(0,0,0,canvas.height);
+  shade.addColorStop(0,'rgba(11,30,38,.12)');
+  shade.addColorStop(.5,'rgba(11,30,38,0)');
+  shade.addColorStop(1,'rgba(11,30,38,.16)');
+  ctx.fillStyle=shade; ctx.fillRect(0,0,canvas.width,canvas.height);
 }
 
 // BARRA DE INTERFACE (HUD) ARCADE ESTILIZADA
 function drawHUD() {
-  // Container Glassmorphism Superior
-  ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-  ctx.fillRect(15, 12, canvas.width - 30, 48);
-  ctx.strokeStyle = '#38bdf8';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(15, 12, canvas.width - 30, 48);
-
-  ctx.font = 'bold 15px "BostonAngel", Segoe UI, sans-serif';
-  let yPos = 42;
-
-  // Crachá do Jogador
-  ctx.fillStyle = '#a855f7';
-  ctx.fillText(`👤 ${playerName || "JOGADOR"}`, 32, yPos);
-
-  // Vidas com Coração Brilhante
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(`Vidas: `, 185, yPos);
-  ctx.fillStyle = '#ef4444';
-  ctx.fillText('❤️'.repeat(Math.max(0, lives)), 240, yPos);
-
-  // Estatísticas do Jogo
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(`Fase: ${phase}`, 355, yPos);
-  ctx.fillText(`Pts: ${scoreBase + Math.floor(distance)}`, 455, yPos);
-  ctx.fillText(`Mochila: 📦 ${eWasteInBag}`, 615, yPos);
-  ctx.fillText(`Sementes: 🌱 ${seedsInBag}`, 775, yPos);
-
-  // Botão de Pausa
-  ctx.fillStyle = '#0284c7';
-  ctx.fillRect(canvas.width - 115, 20, 80, 32);
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 13px "BostonAngel", sans-serif';
-  ctx.fillText("⏸ [P]", canvas.width - 100, 41);
+  paintHUD();
 }
 
 function drawPauseOverlay() {
@@ -106,77 +65,77 @@ function drawPauseOverlay() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#38bdf8';
-  ctx.font = 'bold 38px "BostonAngel", sans-serif';
+  ctx.fillStyle = '#a8df9b';
+  ctx.font = 'bold 38px "Trebuchet MS", sans-serif';
   ctx.fillText("JOGO PAUSADO", canvas.width / 2, canvas.height / 2 - 50);
 
   let btnY = canvas.height / 2 + 10;
   let btnW = 210;
   let btnH = 48;
 
-  ctx.fillStyle = pauseOption === 0 ? '#22c55e' : '#334155';
+  ctx.fillStyle = pauseOption === 0 ? '#447e72' : '#315b61';
   ctx.fillRect(canvas.width / 2 - 220, btnY, btnW, btnH);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f5e7be';
   ctx.font = 'bold 16px sans-serif';
   ctx.fillText("▶ CONTINUAR", canvas.width / 2 - 115, btnY + 30);
 
-  ctx.fillStyle = pauseOption === 1 ? '#ef4444' : '#334155';
+  ctx.fillStyle = pauseOption === 1 ? '#d98d61' : '#315b61';
   ctx.fillRect(canvas.width / 2 + 10, btnY, btnW, btnH);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f5e7be';
   ctx.fillText("🏠 SAIR PARA O MENU", canvas.width / 2 + 115, btnY + 30);
 
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillStyle = '#9bb7ad';
   ctx.font = '14px sans-serif';
   ctx.fillText("USE AS SETAS PARA NAVEGAR | ENTER PARA CONFIRMAR", canvas.width / 2, canvas.height / 2 + 90);
   ctx.textAlign = 'left';
 }
 
 function drawMenuScreen() {
-  ctx.fillStyle = '#0f172a';
+  ctx.fillStyle = '#102d35';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.strokeStyle = '#38bdf8';
+  ctx.strokeStyle = '#a8df9b';
   ctx.lineWidth = 6;
   ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
 
-  ctx.fillStyle = '#38bdf8';
-  ctx.font = '900 46px "BostonAngel", sans-serif';
+  ctx.fillStyle = '#a8df9b';
+  ctx.font = '900 46px "Trebuchet MS", sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText("TECHNOMONSTER", canvas.width / 2, 130);
 
-  ctx.fillStyle = '#fde047';
+  ctx.fillStyle = '#e5c590';
   ctx.font = 'bold 20px sans-serif';
   ctx.fillText(" SALVE A CIDADE DO LIXO! ", canvas.width / 2, 175);
 
   let btnY1 = canvas.height / 2 - 20;
-  ctx.fillStyle = menuOption === 0 ? '#22c55e' : '#334155';
+  ctx.fillStyle = menuOption === 0 ? '#447e72' : '#315b61';
   ctx.fillRect(canvas.width / 2 - 120, btnY1, 240, 50);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f5e7be';
   ctx.font = 'bold 20px sans-serif';
   ctx.fillText("▶ JOGAR", canvas.width / 2, btnY1 + 32);
 
   let btnY2 = canvas.height / 2 + 50;
-  ctx.fillStyle = menuOption === 1 ? '#38bdf8' : '#334155';
+  ctx.fillStyle = menuOption === 1 ? '#a8df9b' : '#315b61';
   ctx.fillRect(canvas.width / 2 - 120, btnY2, 240, 50);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f5e7be';
   ctx.fillText("🎮 CONTROLES", canvas.width / 2, btnY2 + 32);
 
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillStyle = '#9bb7ad';
   ctx.font = '14px sans-serif';
   ctx.fillText("USE SETAS (↑/↓) PARA NAVEGAR E ENTER PARA SELECIONAR", canvas.width / 2, canvas.height - 40);
   ctx.textAlign = 'left';
 }
 
 function drawControlsScreen() {
-  ctx.fillStyle = '#0f172a';
+  ctx.fillStyle = '#102d35';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.strokeStyle = '#38bdf8';
+  ctx.strokeStyle = '#a8df9b';
   ctx.lineWidth = 6;
   ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
 
-  ctx.fillStyle = '#38bdf8';
-  ctx.font = '900 36px "BostonAngel", sans-serif';
+  ctx.fillStyle = '#a8df9b';
+  ctx.font = '900 36px "Trebuchet MS", sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText("🎮 CONTROLES DO JOGO", canvas.width / 2, 75);
 
@@ -192,20 +151,20 @@ function drawControlsScreen() {
   ctx.textAlign = 'left';
 
   for (let i = 0; i < controlsList.length; i++) {
-    ctx.fillStyle = '#facc15';
+    ctx.fillStyle = '#e5c590';
     ctx.font = 'bold 18px sans-serif';
     ctx.fillText(controlsList[i].key, canvas.width / 2 - 250, startY);
 
-    ctx.fillStyle = '#ffffff';
+    ctx.fillStyle = '#f5e7be';
     ctx.font = '18px sans-serif';
     ctx.fillText("- " + controlsList[i].action, canvas.width / 2 - 40, startY);
     startY += 45;
   }
 
   let btnY = canvas.height - 90;
-  ctx.fillStyle = '#ef4444';
+  ctx.fillStyle = '#d98d61';
   ctx.fillRect(canvas.width / 2 - 100, btnY, 200, 45);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f5e7be';
   ctx.font = 'bold 18px sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText("⬅ VOLTAR", canvas.width / 2, btnY + 28);
@@ -216,21 +175,21 @@ function drawNicknameScreen() {
   drawParallaxCity();
   ctx.textAlign = 'center';
 
-  ctx.fillStyle = '#22c55e';
-  ctx.font = 'bold 42px "BostonAngel", sans-serif';
+  ctx.fillStyle = '#447e72';
+  ctx.font = 'bold 42px "Trebuchet MS", sans-serif';
   ctx.fillText("TECHNOMONSTER", canvas.width / 2, canvas.height / 2 - 190);
 
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f5e7be';
   ctx.font = '20px sans-serif';
   ctx.fillText("Escolha o seu Nickname no Joystick:", canvas.width / 2, canvas.height / 2 - 145);
 
-  ctx.fillStyle = '#0f172a';
+  ctx.fillStyle = '#102d35';
   ctx.fillRect(canvas.width / 2 - 160, canvas.height / 2 - 125, 320, 48);
-  ctx.strokeStyle = '#38bdf8';
+  ctx.strokeStyle = '#a8df9b';
   ctx.lineWidth = 2;
   ctx.strokeRect(canvas.width / 2 - 160, canvas.height / 2 - 125, 320, 48);
 
-  ctx.fillStyle = '#facc15';
+  ctx.fillStyle = '#e5c590';
   ctx.font = 'bold 24px sans-serif';
   ctx.fillText((playerName || "") + (Math.floor(Date.now() / 500) % 2 === 0 ? '_' : ''), canvas.width / 2, canvas.height / 2 - 92);
 
@@ -248,13 +207,13 @@ function drawNicknameScreen() {
       const ky = startY + rIdx * (keyHeight + keyGap);
       const isSelected = (rIdx === kbRow && cIdx === kbCol);
 
-      ctx.fillStyle = isSelected ? '#facc15' : '#1e293b';
+      ctx.fillStyle = isSelected ? '#e5c590' : '#1e293b';
       ctx.fillRect(kx, ky, keyWidth, keyHeight);
-      ctx.strokeStyle = isSelected ? '#ffffff' : '#334155';
+      ctx.strokeStyle = isSelected ? '#f5e7be' : '#315b61';
       ctx.lineWidth = isSelected ? 3 : 1;
       ctx.strokeRect(kx, ky, keyWidth, keyHeight);
 
-      ctx.fillStyle = isSelected ? '#000000' : '#ffffff';
+      ctx.fillStyle = isSelected ? '#000000' : '#f5e7be';
       ctx.font = isSelected ? 'bold 20px sans-serif' : '18px sans-serif';
       ctx.fillText(char, kx + keyWidth / 2, ky + keyHeight / 2 + 7);
     });
@@ -267,15 +226,15 @@ function drawStartScreen() {
   drawParallaxCity();
   ctx.textAlign = 'center';
 
-  ctx.fillStyle = '#22c55e';
-  ctx.font = 'bold 48px "BostonAngel", sans-serif';
+  ctx.fillStyle = '#447e72';
+  ctx.font = 'bold 48px "Trebuchet MS", sans-serif';
   ctx.fillText("TECHNOMONSTER", canvas.width / 2, canvas.height / 2 - 80);
 
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f5e7be';
   ctx.font = '22px sans-serif';
   ctx.fillText(`Olá, ${playerName || "JOGADOR"}! Limpe a cidade para fazê-la brilhar novamente.`, canvas.width / 2, canvas.height / 2 - 20);
 
-  ctx.fillStyle = '#38bdf8';
+  ctx.fillStyle = '#a8df9b';
   ctx.font = 'bold 24px sans-serif';
   ctx.fillText("Pressione ESPAÇO ou SETA CIMA para iniciar", canvas.width / 2, canvas.height / 2 + 60);
 
@@ -287,16 +246,16 @@ function drawEcopontoOverlay() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#22c55e';
-  ctx.font = '900 40px "BostonAngel", sans-serif';
+  ctx.fillStyle = '#447e72';
+  ctx.font = '900 40px "Trebuchet MS", sans-serif';
   ctx.fillText(`FASE ${phase} CONCLUÍDA! ♻️`, canvas.width / 2, canvas.height / 2 - 110);
 
   let totalPts = scoreBase + Math.floor(distance);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f5e7be';
   ctx.font = 'bold 24px sans-serif';
   ctx.fillText(`Pontuação Atual: ${totalPts} PTS`, canvas.width / 2, canvas.height / 2 - 50);
 
-  ctx.fillStyle = '#38bdf8';
+  ctx.fillStyle = '#a8df9b';
   ctx.font = '18px sans-serif';
   ctx.fillText(`E-Lixo depositado! Você ganhou sementes para a próxima etapa.`, canvas.width / 2, canvas.height / 2 - 10);
 
@@ -304,15 +263,15 @@ function drawEcopontoOverlay() {
   let btnW = 210;
   let btnH = 48;
 
-  ctx.fillStyle = ecopontoOption === 0 ? '#22c55e' : '#334155';
+  ctx.fillStyle = ecopontoOption === 0 ? '#447e72' : '#315b61';
   ctx.fillRect(canvas.width / 2 - 220, btnY, btnW, btnH);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f5e7be';
   ctx.font = 'bold 16px sans-serif';
   ctx.fillText("▶ PRÓXIMA FASE", canvas.width / 2 - 115, btnY + 30);
 
-  ctx.fillStyle = ecopontoOption === 1 ? '#ef4444' : '#334155';
+  ctx.fillStyle = ecopontoOption === 1 ? '#d98d61' : '#315b61';
   ctx.fillRect(canvas.width / 2 + 10, btnY, btnW, btnH);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f5e7be';
   ctx.fillText("🏁 FINALIZAR CORRIDA", canvas.width / 2 + 115, btnY + 30);
 
   ctx.textAlign = 'left';
@@ -322,16 +281,16 @@ function drawGameOverScreen() {
   ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.strokeStyle = '#ef4444';
+  ctx.strokeStyle = '#d98d61';
   ctx.lineWidth = 6;
   ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
 
-  ctx.fillStyle = '#ef4444';
-  ctx.font = '900 48px "BostonAngel", sans-serif';
+  ctx.fillStyle = '#d98d61';
+  ctx.font = '900 48px "Trebuchet MS", sans-serif';
   ctx.textAlign = 'center';
   ctx.fillText("GAME OVER", canvas.width / 2, 85);
 
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f5e7be';
   ctx.font = 'bold 20px sans-serif';
   let finalPts = scoreBase + Math.floor(distance);
   ctx.fillText(`JOGADOR: ${playerName || "JOGADOR"} | PONTUAÇÃO FINAL: ${finalPts} PTS`, canvas.width / 2, 125);
@@ -343,7 +302,7 @@ function drawGameOverScreen() {
   ctx.fillText("🏆 PÓDIO 🏆", canvas.width / 2, 175);
 
   const podiumData = [
-    { rank: 2, label: '2º LUGAR', height: 90, width: 120, xOffset: -130, color: '#94a3b8', textColor: '#f8fafc' },
+    { rank: 2, label: '2º LUGAR', height: 90, width: 120, xOffset: -130, color: '#9bb7ad', textColor: '#f8fafc' },
     { rank: 1, label: '1º LUGAR', height: 130, width: 130, xOffset: 0, color: '#eab308', textColor: '#fef08a' },
     { rank: 3, label: '3º LUGAR', height: 70, width: 120, xOffset: 130, color: '#b45309', textColor: '#ffedd5' }
   ];
@@ -370,15 +329,15 @@ function drawGameOverScreen() {
   });
 
   let optY = canvas.height - 90;
-  ctx.fillStyle = gameOverOption === 0 ? '#22c55e' : '#475569';
+  ctx.fillStyle = gameOverOption === 0 ? '#447e72' : '#475569';
   ctx.fillRect(canvas.width / 2 - 210, optY, 200, 45);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f5e7be';
   ctx.font = 'bold 16px sans-serif';
   ctx.fillText("▶ JOGAR NOVAMENTE", canvas.width / 2 - 110, optY + 28);
 
-  ctx.fillStyle = gameOverOption === 1 ? '#38bdf8' : '#475569';
+  ctx.fillStyle = gameOverOption === 1 ? '#a8df9b' : '#475569';
   ctx.fillRect(canvas.width / 2 + 10, optY, 200, 45);
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#f5e7be';
   ctx.fillText("🏠 MENU INICIAL", canvas.width / 2 + 110, optY + 28);
 
   ctx.textAlign = 'left';

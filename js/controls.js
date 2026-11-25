@@ -115,6 +115,7 @@ window.addEventListener('keydown', (e) => {
       for (let i = items.length - 1; i >= 0; i--) {
         if (isPlayerNearItem(items[i])) {
           if (items[i].type === 'RECICLAVEL') {
+            createParticles(items[i].x, items[i].y, ART.mint, 18, 1.1);
             scoreBase += 20;
             totalCleanActions += 2;
             showMessage("+20 Pts: Reciclado! ♻️");
@@ -142,6 +143,7 @@ window.addEventListener('keydown', (e) => {
     if (e.code === 'KeyX') {
       for (let i = items.length - 1; i >= 0; i--) {
         if (items[i].type === 'ELETRONICO' && isPlayerNearItem(items[i])) {
+          createParticles(items[i].x, items[i].y, ART.copper, 16, 1.0);
           eWasteInBag++;
           totalCleanActions++;
           showMessage("+1 E-Lixo Guardado! 🔋");
@@ -156,6 +158,7 @@ window.addEventListener('keydown', (e) => {
       if (seedsInBag > 0) {
         for (let i = items.length - 1; i >= 0; i--) {
           if (items[i].type === 'CANTEIRO' && isPlayerNearItem(items[i])) {
+            createParticles(items[i].x, items[i].y, ART.mint, 24, 1.4);
             seedsInBag--;
             scoreBase += 50;
             totalCleanActions += 5;

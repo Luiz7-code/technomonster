@@ -4,19 +4,14 @@
   box-sizing: border-box;
 }
 
-@font-face {
-  font-family: 'BostonAngel';
-  src: url('../fonts/Boston Angel Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
+
 
 html, body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #030712;
-  font-family: 'BostonAngel', 'Segoe UI', Tahoma, sans-serif;
+  background-color: #102d35;
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
   user-select: none;
 }
 
