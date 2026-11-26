@@ -90,87 +90,6 @@ function drawPauseOverlay() {
   ctx.textAlign = 'left';
 }
 
-function drawMenuScreen() {
-  ctx.fillStyle = '#102d35';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.strokeStyle = '#a8df9b';
-  ctx.lineWidth = 6;
-  ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
-
-  ctx.fillStyle = '#a8df9b';
-  ctx.font = '900 46px "Trebuchet MS", sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText("TECHNOMONSTER", canvas.width / 2, 130);
-
-  ctx.fillStyle = '#e5c590';
-  ctx.font = 'bold 20px sans-serif';
-  ctx.fillText(" SALVE A CIDADE DO LIXO! ", canvas.width / 2, 175);
-
-  let btnY1 = canvas.height / 2 - 20;
-  ctx.fillStyle = menuOption === 0 ? '#447e72' : '#315b61';
-  ctx.fillRect(canvas.width / 2 - 120, btnY1, 240, 50);
-  ctx.fillStyle = '#f5e7be';
-  ctx.font = 'bold 20px sans-serif';
-  ctx.fillText("▶ JOGAR", canvas.width / 2, btnY1 + 32);
-
-  let btnY2 = canvas.height / 2 + 50;
-  ctx.fillStyle = menuOption === 1 ? '#a8df9b' : '#315b61';
-  ctx.fillRect(canvas.width / 2 - 120, btnY2, 240, 50);
-  ctx.fillStyle = '#f5e7be';
-  ctx.fillText("🎮 CONTROLES", canvas.width / 2, btnY2 + 32);
-
-  ctx.fillStyle = '#9bb7ad';
-  ctx.font = '14px sans-serif';
-  ctx.fillText("USE SETAS (↑/↓) PARA NAVEGAR E ENTER PARA SELECIONAR", canvas.width / 2, canvas.height - 40);
-  ctx.textAlign = 'left';
-}
-
-function drawControlsScreen() {
-  ctx.fillStyle = '#102d35';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  ctx.strokeStyle = '#a8df9b';
-  ctx.lineWidth = 6;
-  ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
-
-  ctx.fillStyle = '#a8df9b';
-  ctx.font = '900 36px "Trebuchet MS", sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText("🎮 CONTROLES DO JOGO", canvas.width / 2, 75);
-
-  const controlsList = [
-    { key: "SETA CIMA / ESPAÇO / W", action: "Pulo Duplo" },
-    { key: "TECLA [C]", action: "Comer Reciclável / (E-Lixo = -1 Vida)" },
-    { key: "TECLA [X]", action: "Guardar E-Lixo na Mochila" },
-    { key: "TECLA [Y]", action: "Plantar Sementes no Canteiro" },
-    { key: "SEMENTES 🌱", action: "Coleta Automática ao Encostar" }
-  ];
-
-  let startY = 145;
-  ctx.textAlign = 'left';
-
-  for (let i = 0; i < controlsList.length; i++) {
-    ctx.fillStyle = '#e5c590';
-    ctx.font = 'bold 18px sans-serif';
-    ctx.fillText(controlsList[i].key, canvas.width / 2 - 250, startY);
-
-    ctx.fillStyle = '#f5e7be';
-    ctx.font = '18px sans-serif';
-    ctx.fillText("- " + controlsList[i].action, canvas.width / 2 - 40, startY);
-    startY += 45;
-  }
-
-  let btnY = canvas.height - 90;
-  ctx.fillStyle = '#d98d61';
-  ctx.fillRect(canvas.width / 2 - 100, btnY, 200, 45);
-  ctx.fillStyle = '#f5e7be';
-  ctx.font = 'bold 18px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText("⬅ VOLTAR", canvas.width / 2, btnY + 28);
-  ctx.textAlign = 'left';
-}
-
 function drawNicknameScreen() {
   drawParallaxCity();
   ctx.textAlign = 'center';
@@ -347,8 +266,11 @@ function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   switch (gameState) {
-    case 'MENU': drawMenuScreen(); break;
-    case 'CONTROLS': drawControlsScreen(); break;
+    case 'MENU':
+    case 'CONTROLS':
+    case 'TUTORIAL':
+    case 'RECORDS':
+    case 'CREDITS': drawTitleScreen(); break;
     case 'NICKNAME': drawNicknameScreen(); break;
     case 'START': drawStartScreen(); break;
     case 'PLAYING':

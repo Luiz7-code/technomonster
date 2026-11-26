@@ -15,25 +15,7 @@ function handleVirtualKeyPress(char) {
 
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
-
-  // 1. MENU PRINCIPAL
-  if (gameState === 'MENU') {
-    if (e.code === 'ArrowUp' || e.code === 'KeyW') menuOption = 0;
-    if (e.code === 'ArrowDown' || e.code === 'KeyS') menuOption = 1;
-    if (e.code === 'Enter' || e.code === 'Space') {
-      if (menuOption === 0) gameState = 'NICKNAME';
-      else gameState = 'CONTROLS';
-    }
-    return;
-  }
-
-  // 2. CONTROLES
-  if (gameState === 'CONTROLS') {
-    if (e.code === 'Enter' || e.code === 'Space' || e.code === 'Escape') {
-      gameState = 'MENU';
-    }
-    return;
-  }
+  if (titleKey(e)) return;
 
   // 3. SELEÇÃO DE NICKNAME / JOYSTICK FLIPERAMA
   if (gameState === 'NICKNAME') {
@@ -221,6 +203,7 @@ window.addEventListener('load', () => {
   if (!gameCanvas) return;
 
   gameCanvas.addEventListener('click', (e) => {
+    if (titlePointer(e, true)) return;
     const rect = gameCanvas.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
