@@ -35,26 +35,37 @@ function paintCity() {
   if(gameState==='PLAYING') { artClock++; visualClean+=(Math.min(1,totalCleanActions/120)-visualClean)*0.012; }
   const c=visualClean, t=artClock, horizon=GROUND_Y;
   const sky=ctx.createLinearGradient(0,0,0,horizon);
-  sky.addColorStop(0,interpolateColor('#80799f','#78b9c3',c));
-  sky.addColorStop(.65,interpolateColor('#d7a1a2','#b8d8c0',c));
-  sky.addColorStop(1,interpolateColor('#f6c9a0','#ffe6b0',c));
+  sky.addColorStop(0,interpolateColor('#101b28','#78b9c3',c));
+  sky.addColorStop(.65,interpolateColor('#303e49','#b8d8c0',c));
+  sky.addColorStop(1,interpolateColor('#67685b','#ffe6b0',c));
   ctx.fillStyle=sky; ctx.fillRect(0,0,canvas.width,canvas.height);
   const sunX=canvas.width*.76, sunY=Math.max(115,horizon*.28);
   const glow=ctx.createRadialGradient(sunX,sunY,40,sunX,sunY,160);
   glow.addColorStop(0,'rgba(244,213,162,.22)'); glow.addColorStop(1,'rgba(244,213,162,0)');
+  ctx.save();ctx.globalAlpha=.12+c*.88;
   ctx.fillStyle=glow; ctx.fillRect(sunX-160,sunY-160,320,320);
   artOval(sunX,sunY,47,47,'#ffe4b5');
+  ctx.restore();
   // Long painted cloud banks, with a slow drift independent of world generation.
   for(let i=0;i<7;i++) {
     const x=((i*337-t*.09)%(canvas.width+400)+canvas.width+400)%(canvas.width+400)-200;
     const y=75+artNoise(i)*Math.max(80,horizon*.32);
     ctx.save(); ctx.globalAlpha=.38;
-    ctx.fillStyle='#f8dac6'; ctx.beginPath();
+    ctx.fillStyle=interpolateColor('#59615d','#f8dac6',c); ctx.beginPath();
     ctx.moveTo(x-110,y+12); ctx.bezierCurveTo(x-120,y-4,x-77,y-17,x-51,y-10);
     ctx.bezierCurveTo(x-36,y-48,x+12,y-44,x+33,y-16);
     ctx.bezierCurveTo(x+75,y-25,x+100,y-9,x+115,y+12);
     ctx.closePath(); ctx.fill(); ctx.restore();
   }
+  // Broad smog banks disperse as the existing cleanup score increases.
+  ctx.save();ctx.globalAlpha=(1-c)*.65;
+  for(let i=0;i<10;i++) {
+    const span=canvas.width+600,x=((i*span/10+t*.12)%span)-300;
+    const y=55+artNoise(i+45)*Math.max(100,horizon*.48);
+    artOval(x,y,180+artNoise(i)*100,25+artNoise(i+9)*22,'#27343c');
+    artOval(x+70,y-15,100,30,'#2d3940');
+  }
+  ctx.restore();
   // Continuous deterministic architecture avoids seams when parallax wraps.
   for(let layer=0;layer<3;layer++) {
     const step=[170,195,230][layer], offset=distance*[.32,.85,1.65][layer];
@@ -64,12 +75,12 @@ function paintCity() {
       const h=[170,155,160][layer]+n*[140,150,125][layer];
       const y=horizon-h;
       const facade=['#b88586','#d3a285','#8baca1','#c8b39a'][Math.floor(n*4)];
-      const shade=[interpolateColor('#a29ab4','#9bc3bc',c),interpolateColor('#9c8fa1','#8db4a9',c),facade][layer];
+      const shade=[interpolateColor('#35444d','#9bc3bc',c),interpolateColor('#344349','#8db4a9',c),interpolateColor('#46504c',facade,c)][layer];
       artRect(x,y,w,h,shade,5);
       // Terracotta pitched roofs and plaster cornices, no background signage.
-      ctx.fillStyle=layer===2?'#865f70':shade; ctx.beginPath();
+      ctx.fillStyle=layer===2?interpolateColor('#26373e','#865f70',c):shade; ctx.beginPath();
       ctx.moveTo(x-6,y);ctx.lineTo(x+w*.35,y-25-n*18);ctx.lineTo(x+w+6,y);ctx.closePath();ctx.fill();
-      artRect(x-4,y,w+8,6,layer===2?'#f0c9ab':shade,2);
+      artRect(x-4,y,w+8,6,layer===2?interpolateColor('#788071','#f0c9ab',c):shade,2);
       if(layer===0) { artRect(x+w*.5,y-32,3,24,shade); continue; }
       artRect(x+w-22,y+6,20,h-6,'rgba(9,32,42,.18)');
       artRect(x+12,y+12,w-42,4,'rgba(239,222,184,.15)');
@@ -77,17 +88,23 @@ function paintCity() {
         for(let col=0;col<Math.floor((w-32)/28);col++) {
           const wx=x+16+col*28, wy=y+30+row*39;
           const lit=artNoise(i*31+row*7+col)>.52;
-          artRect(wx-3,wy-3,18,27,layer===2?'#ecd1b4':shade,7);
-          artRect(wx,wy,12,21,lit?'#f3d4a2':'#59657a',6);
+          artRect(wx-3,wy-3,18,27,layer===2?interpolateColor('#7a8270','#ecd1b4',c):shade,7);
+          artRect(wx,wy,12,21,lit?interpolateColor('#b6ad76','#f3d4a2',c):interpolateColor('#25373e','#59657a',c),6);
           artRect(wx,wy+17,15,3,'rgba(9,28,35,.28)');
-          if(lit) artRect(wx+2,wy+2,3,15,'#fff1cf');
+          if(lit) artRect(wx+2,wy+2,3,15,interpolateColor('#cfbf8a','#fff1cf',c));
         }
       }
       if(layer===2) {
         if(n>.78) {
           // A sawtooth workshop roof breaks the apartment-block silhouette.
-          artRect(x+w-62,y-50,28,43,'#b7908d',3);
-          artRect(x+w-66,y-52,36,7,'#eed1b5',2);
+          artRect(x+w-62,y-50,28,43,interpolateColor('#515852','#b7908d',c),3);
+          artRect(x+w-66,y-52,36,7,interpolateColor('#7b8071','#eed1b5',c),2);
+          // Emissions are visual only: fixed count, no random gameplay calls.
+          for(let puff=0;puff<6;puff++) {
+            const age=(t*.0018+puff/6+n)%1;
+            ctx.save();ctx.globalAlpha=(1-c)*Math.sin(age*Math.PI)*.3;
+            artOval(x+w-48+age*75,y-58-age*135,9+age*39,7+age*22,'#25343b');ctx.restore();
+          }
         }
         // Water tanks, ventilation stacks, exterior plumbing and shop awnings.
         artLine([[x+w-12,y+10],[x+w-12,horizon-12]],'#bda18f',3);
@@ -98,17 +115,20 @@ function paintCity() {
         for(let pot=0;pot<3;pot++) {
           const px=x+110+pot*22;
           artRect(px,horizon-28,15,16,'#a66f66',3);
-          artOval(px+7,horizon-32,10,7,'#648d7a');
-          artOval(px+4,horizon-37,6,6,'#91ac83');
+          artOval(px+7,horizon-32,10,7,interpolateColor('#5a6045','#648d7a',c));
+          artOval(px+4,horizon-37,6,6,interpolateColor('#72704f','#91ac83',c));
         }
         if(n<.4) {
           for(let floor=1;floor<4;floor++) {
             const by=horizon-floor*65;
+            // Entire railing must fit below this building's cornice.
+            if(by-15<y+12) continue;
             artRect(x+100,by,70,4,'#153640');
             artLine([[x+103,by],[x+103,by-15],[x+166,by-15],[x+166,by]],'#87a399',1);
             for(let k=114;k<166;k+=12) artLine([[x+k,by],[x+k,by-15]],'#87a399',1);
           }
         }
+        // Facades regain color with revitalization, without dirt overlays.
         if(c>.05) {
           ctx.save(); ctx.globalAlpha=c;
           for(let leaf=0;leaf<10;leaf++) {const ly=y+10+leaf*9;artLine([[x+8,ly],[x+8,ly+9]],'#689c73',2);artOval(x+8+(leaf%2?4:-4),ly,5,3,'#95bb80');}
@@ -138,11 +158,20 @@ function paintCity() {
     if(seg.x>canvas.width || seg.x+seg.width<0) continue;
     const x=seg.x,w=seg.width;
     if(seg.type==='ASPHALT') {
-      artRect(x,horizon,w,canvas.height-horizon,'#655e72');
-      artRect(x,horizon,w,10,'#e3ccb0'); artRect(x,horizon+10,w,7,'#ae978e');
+      artRect(x,horizon,w,canvas.height-horizon,interpolateColor('#212e32','#655e72',c));
+      artRect(x,horizon,w,10,interpolateColor('#8b927b','#e3ccb0',c)); artRect(x,horizon+10,w,7,interpolateColor('#515c53','#ae978e',c));
       ctx.save();ctx.beginPath();ctx.rect(x,horizon,w,canvas.height-horizon);ctx.clip();
       for(let row=0;row<4;row++) for(let k=-40;k<w;k+=64) {
-        artRect(x+k+(row%2)*32,horizon+22+row*22,59,17,row%2?'#766b7b':'#7f7180',5);
+        artRect(x+k+(row%2)*32,horizon+22+row*22,59,17,interpolateColor(row%2?'#37423f':'#3e4843',row%2?'#766b7b':'#7f7180',c),5);
+      }
+      ctx.globalAlpha=(1-c)*.8;
+      // Segment-relative stains travel with the street, not the camera.
+      for(let k=16;k<w;k+=83) {
+        const seed=k+seg.width,dy=horizon+18+artNoise(seed)*70;
+        artOval(x+k,dy,18+artNoise(seed+1)*24,4+artNoise(seed+2)*8,'#172c2b');
+        artOval(x+k+12,dy+2,11,3,'#4b5039');
+        artLine([[x+k-8,dy-1],[x+k+4,dy-2]],'#646d53',1);
+        artRect(x+k+33,dy+9,5,2,'#9a9478',1);
       }
       ctx.restore();
     } else {
@@ -162,7 +191,7 @@ function paintCity() {
   for(let i=0;i<16;i++) {
     const x=((artNoise(i+200)*canvas.width-t*(.15+artNoise(i)))%canvas.width+canvas.width)%canvas.width;
     const y=90+artNoise(i+30)*Math.max(1,horizon-130)+Math.sin(t*.012+i)*8;
-    ctx.save(); ctx.globalAlpha=.25; artOval(x,y,2,1,ART.paper); ctx.restore();
+    ctx.save(); ctx.globalAlpha=.25; artOval(x,y,2,1,interpolateColor('#303a38',ART.paper,c)); ctx.restore();
   }
   if(sea) {
     artRect(canvas.width/2-143,canvas.height-34,286,25,'#102d35dd',12);
