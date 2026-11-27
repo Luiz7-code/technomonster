@@ -11,10 +11,10 @@ function titleLayout() {
   const scale=Math.min(canvas.width/w,canvas.height/h);
   return {portrait,w,h,scale,x:(canvas.width-w*scale)/2,y:(canvas.height-h*scale)/2};
 }
-function titleButtons(l) {
-  if(gameState!=='MENU') return [{x:l.w/2-115,y:l.h-104,w:230,h:48}];
-  const x=l.portrait?60:92,y=l.portrait?402:310;
-  return TITLE_OPTIONS.map((_,i)=>({x,y:y+i*56,w:l.portrait?330:320,h:46}));
+function titleButtons(l,menuPreview=false) {
+  if(gameState!=='MENU'&&!menuPreview) return [{x:l.w/2-115,y:l.h-104,w:230,h:48}];
+  const x=l.portrait?54:84,y=l.portrait?296:305;
+  return TITLE_OPTIONS.map((_,i)=>({x,y:y+i*62,w:l.portrait?345:350,h:51}));
 }
 function titleActivate(index) {
   if(titleUI.pending!==null) return;
@@ -95,6 +95,7 @@ function titleSmoke(l,t) {
   }
 }
 function titleScene(l,t) {
+  if(paintIllustratedTitle(l,t))return;
   const {w,h}=l;
   const sky=ctx.createLinearGradient(0,0,w,h);
   sky.addColorStop(0,'#282d43');sky.addColorStop(.55,'#8e7b91');sky.addColorStop(1,'#e9bb94');
@@ -150,27 +151,8 @@ function titleScene(l,t) {
   shade.addColorStop(0,'rgba(15,29,40,.94)');shade.addColorStop(l.portrait?.44:.37,'rgba(15,29,40,.72)');shade.addColorStop(1,'rgba(15,29,40,0)');
   ctx.fillStyle=shade;ctx.fillRect(0,0,w,h);
 }
-function titleLogo(l) {
-  const x=l.portrait?60:92,y=l.portrait?126:125;
-  artText('UMA CIDADE. UMA NOVA CHANCE.',x,y-75,12,'#c7d2b1');
-  ctx.save();ctx.translate(x,y);ctx.rotate(-.025);
-  ctx.font='900 62px "Trebuchet MS", sans-serif';ctx.lineJoin='round';ctx.lineWidth=8;
-  ctx.strokeStyle='#162e36';ctx.strokeText('TECHNO',0,0);ctx.fillStyle='#f5e4bc';ctx.fillText('TECHNO',0,0);
-  ctx.font='900 70px "Trebuchet MS", sans-serif';ctx.strokeText('MONSTER',-3,65);ctx.fillStyle='#a8df9b';ctx.fillText('MONSTER',-3,65);
-  titleLeaf(323,30,15,'#a8df9b',-.65);ctx.restore();
-  artText('Pequeno monstro. Grande transformação.',x,y+107,16,'#e1d7bf');
-}
-function titleButton(b,label,selected,amount,index) {
-  const pressed=titleUI.pending!==null && (gameState!=='MENU'||index===menuOption);
-  const shift=pressed?3:amount*8;
-  ctx.save();ctx.translate(shift,pressed?2:0);
-  ctx.fillStyle=selected?(pressed?'#e4edc5':'#a8d49a'):'#1d3541dd';
-  ctx.beginPath();ctx.moveTo(b.x,b.y);ctx.lineTo(b.x+b.w-12,b.y);ctx.lineTo(b.x+b.w,b.y+b.h/2);ctx.lineTo(b.x+b.w-12,b.y+b.h);ctx.lineTo(b.x,b.y+b.h);ctx.closePath();ctx.fill();
-  artRect(b.x,b.y+8,3,b.h-16,selected?'#eef3d0':'#608279');
-  artText(label,b.x+24,b.y+30,selected?19:16,selected?'#203c37':'#e0e3ce');
-  if(selected) artText(pressed?'✓':'›',b.x+b.w-35,b.y+31,25,'#26483e');
-  ctx.restore();
-}
+function titleLogo(l) { paintedTitleLogo(l); }
+function titleButton(b,label,selected,amount,index) { paintedTitleButton(b,label,selected,amount,index); }
 function titleWrap(text,x,y,maxWidth,size=17,color='#d7ddce',lineHeight=25) {
   ctx.font=`600 ${size}px "Trebuchet MS", sans-serif`;
   let line='';for(const word of text.split(' ')) {
@@ -203,19 +185,23 @@ function titlePanel(l) {
     y=titleWrap('Projeto educacional desenvolvido por estudantes do SENAI.',x+32,y+48,w-64,20)+28;
     y=titleWrap('Um jogo sobre reciclagem, responsabilidade ambiental e a transformação de uma cidade pelas nossas ações.',x+32,y,w-64,18)+28;
     artText('TRILHA SONORA',x+32,y,12,'#a8df9b');
-    titleWrap('Pixel Dreams — djlofi (arquivo de áudio do projeto).',x+32,y+27,w-64,16);
+    y=titleWrap('Pixel Dreams — djlofi (partidas).',x+32,y+27,w-64,16);
+    titleWrap('Primeiro Broto — trilha original da abertura, criada com assistência do Codex por síntese digital, sem samples externos.',x+32,y+20,w-64,15);
   }
   titleButton(titleButtons(l)[0],'VOLTAR',true,0,0);
 }
-function drawTitleScreen() {
+function drawTitleScreen(menuPreview=false) {
   const now=performance.now(),dt=Math.min(50,now-(titleUI.last||now));titleUI.last=now;
   const l=titleLayout();
   artRect(0,0,canvas.width,canvas.height,'#142632');
+  // One continuous full-viewport painting; fit only the interactive UI.
+  ctx.save();ctx.scale(l.scale,l.scale);
+  titleScene({...l,w:canvas.width/l.scale,h:canvas.height/l.scale},now/1000);
+  ctx.restore();
   ctx.save();ctx.translate(l.x,l.y);ctx.scale(l.scale,l.scale);
-  titleScene(l,now/1000);
-  if(gameState==='MENU') {
+  if(gameState==='MENU'||menuPreview) {
     titleLogo(l);
-    titleButtons(l).forEach((b,i)=>{titleUI.focus[i]+=((menuOption===i?1:0)-titleUI.focus[i])*(1-Math.exp(-dt/90));titleButton(b,TITLE_OPTIONS[i][0],menuOption===i,titleUI.focus[i],i);});
+    titleButtons(l,true).forEach((b,i)=>{titleUI.focus[i]+=((menuOption===i?1:0)-titleUI.focus[i])*(1-Math.exp(-dt/90));titleButton(b,TITLE_OPTIONS[i][0],menuOption===i,titleUI.focus[i],i);});
     artText('↑ ↓  ESCOLHER     ENTER  CONFIRMAR',l.portrait?60:92,l.h-55,11,'#b3c3b5');
     artText('PROJETO SENAI  /  TECHNOMONSTER',l.portrait?60:92,l.h-32,9,'#809f9b');
   } else titlePanel(l);

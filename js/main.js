@@ -13,6 +13,7 @@ function stopBackgroundMusic() {
 
 function setupArcadeAudio() {
   const unlockAudio = () => {
+    if (gameState === 'INTRO') return;
     playBackgroundMusic();
     window.removeEventListener('keydown', unlockAudio);
     window.removeEventListener('click', unlockAudio);
@@ -266,6 +267,7 @@ function gameLoop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   switch (gameState) {
+    case 'INTRO': drawIntro(); break;
     case 'MENU':
     case 'CONTROLS':
     case 'TUTORIAL':

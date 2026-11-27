@@ -58,7 +58,7 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-let gameState = 'MENU'; 
+let gameState = 'INTRO';
 let menuOption = 0;     
 let pauseOption = 0;    
 let gameOverOption = 0; 

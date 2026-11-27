@@ -15,6 +15,11 @@ function handleVirtualKeyPress(char) {
 
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
+  if (gameState === 'INTRO') {
+    e.preventDefault();
+    if (e.code === 'KeyM') toggleIntroSound(); else finishIntro();
+    return;
+  }
   if (titleKey(e)) return;
 
   // 3. SELEÇÃO DE NICKNAME / JOYSTICK FLIPERAMA
@@ -203,6 +208,7 @@ window.addEventListener('load', () => {
   if (!gameCanvas) return;
 
   gameCanvas.addEventListener('click', (e) => {
+    if (gameState === 'INTRO') { if (!introSoundClick(e)) finishIntro(); return; }
     if (titlePointer(e, true)) return;
     const rect = gameCanvas.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
