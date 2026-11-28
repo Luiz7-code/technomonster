@@ -482,9 +482,9 @@ function drawParallaxCity() {
 function drawFloatingMessages() {
   for (let i = floatingMessages.length - 1; i >= 0; i--) {
     let msg = floatingMessages[i];
-    ctx.fillStyle = `rgba(245, 231, 190, ${msg.alpha})`;
-    ctx.font = '14px "Trebuchet MS", Segoe UI, sans-serif';
-    ctx.fillText(msg.text, msg.x, msg.y);
+    const width=Math.min(330,canvas.width-24);
+    ctx.save();ctx.globalAlpha=Math.max(0,msg.alpha);
+    typeText(msg.text,Math.max(12,Math.min(msg.x,canvas.width-width-12)),msg.y,{role:'button',size:18,maxWidth:width,outline:true});ctx.restore();
   }
 }
 

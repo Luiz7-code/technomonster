@@ -181,8 +181,8 @@ window.addEventListener('keydown', (e) => {
 
   // 8. GAME OVER
   if (gameState === 'GAMEOVER') {
-    if (e.code === 'ArrowLeft' || e.code === 'KeyA') gameOverOption = 0;
-    if (e.code === 'ArrowRight' || e.code === 'KeyD') gameOverOption = 1;
+    if (['ArrowLeft','KeyA','ArrowUp','KeyW'].includes(e.code)) gameOverOption = 0;
+    if (['ArrowRight','KeyD','ArrowDown','KeyS'].includes(e.code)) gameOverOption = 1;
 
     if (e.code === 'Enter' || e.code === 'Space') {
       if (gameOverOption === 0) {
@@ -214,69 +214,17 @@ window.addEventListener('load', () => {
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
 
-    // Teclado Virtual Nickname
+    // Rendering and pointer input share the same responsive rectangles.
     if (gameState === 'NICKNAME') {
-      const keyWidth = 48;
-      const keyHeight = 48;
-      const keyGap = 10;
-      const startY = gameCanvas.height / 2 - 50;
-
-      vkGrid.forEach((row, rIdx) => {
-        const rowWidth = row.length * keyWidth + (row.length - 1) * keyGap;
-        const startX = gameCanvas.width / 2 - rowWidth / 2;
-
-        row.forEach((char, cIdx) => {
-          const kx = startX + cIdx * (keyWidth + keyGap);
-          const ky = startY + rIdx * (keyHeight + keyGap);
-
-          if (clickX >= kx && clickX <= kx + keyWidth && clickY >= ky && clickY <= ky + keyHeight) {
-            kbRow = rIdx;
-            kbCol = cIdx;
-            handleVirtualKeyPress(char);
-          }
-        });
-      });
-      return;
+      const key=uiNicknameKeys().flat().find(b=>clickX>=b.x&&clickX<=b.x+b.w&&clickY>=b.y&&clickY<=b.y+b.h);
+      if(key){kbRow=key.r;kbCol=key.c;handleVirtualKeyPress(key.char);}return;
     }
-
-    // Clique no Overlay de Pausa
-    if (gameState === 'PAUSED') {
-      const btnW = 210;
-      const btnH = 48;
-      const btnY = gameCanvas.height / 2 + 10;
-
-      // Botão Continuar
-      const btn1X = gameCanvas.width / 2 - 220;
-      if (clickX >= btn1X && clickX <= btn1X + btnW && clickY >= btnY && clickY <= btnY + btnH) {
-        gameState = 'PLAYING';
-        return;
-      }
-
-      // Botão Sair
-      const btn2X = gameCanvas.width / 2 + 10;
-      if (clickX >= btn2X && clickX <= btn2X + btnW && clickY >= btnY && clickY <= btnY + btnH) {
-        gameState = 'MENU';
-        return;
-      }
-    }
-
-    // Clique na Tela do Ecoponto (Transição de Fase)
-    if (gameState === 'ECOPONTO_PAUSE') {
-      const btnW = 210;
-      const btnH = 48;
-      const btnY = gameCanvas.height / 2 + 60;
-
-      // Botão 1: Próxima Fase
-      const btn1X = gameCanvas.width / 2 - 220;
-      if (clickX >= btn1X && clickX <= btn1X + btnW && clickY >= btnY && clickY <= btnY + btnH) {
-        continueFromEcoponto();
-        return;
-      }
-
-      // Botão 2: Finalizar Corrida
-      const btn2X = gameCanvas.width / 2 + 10;
-      if (clickX >= btn2X && clickX <= btn2X + btnW && clickY >= btnY && clickY <= btnY + btnH) {
-        triggerGameOver();
+    if (['PAUSED','ECOPONTO_PAUSE','GAMEOVER'].includes(gameState)) {
+      const choice=uiActionButtons(gameState).findIndex(b=>clickX>=b.x&&clickX<=b.x+b.w&&clickY>=b.y&&clickY<=b.y+b.h);
+      if(choice>=0){
+        if(gameState==='PAUSED')gameState=choice===0?'PLAYING':'MENU';
+        else if(gameState==='ECOPONTO_PAUSE'){if(choice===0)continueFromEcoponto();else triggerGameOver();}
+        else if(choice===0){resetGame();gameState='PLAYING';playBackgroundMusic();}else gameState='MENU';
         return;
       }
     }

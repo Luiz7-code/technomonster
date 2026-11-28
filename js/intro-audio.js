@@ -37,5 +37,5 @@ function drawIntroSound(l) {
   const b=introSoundButton(l);
   artRect(b.x,b.y,b.w,b.h,'#142d38e8',7);
   const label=introSound.failed?'SOM INDISPONÍVEL':introSound.enabled?'SOM LIGADO · M':'ATIVAR SOM · M';
-  artText(label,b.x+b.w/2,b.y+24,12,introSound.enabled?'#a8df9b':'#eee7d1','center');
+  typeText(label,b.x+b.w/2,b.y+25,{role:'label',size:16,color:introSound.enabled?'#a8df9b':'#eee7d1',align:'center',maxWidth:b.w-16});
 }

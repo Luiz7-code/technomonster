@@ -26,7 +26,7 @@ function artOval(x,y,rx,ry,color) {
   ctx.fillStyle=color; ctx.beginPath(); ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2); ctx.fill();
 }
 function artText(text,x,y,size=12,color=ART.paper,align='left') {
-  ctx.fillStyle=color; ctx.font=`600 ${size}px "Trebuchet MS", sans-serif`; ctx.textAlign=align; ctx.fillText(text,x,y); ctx.textAlign='left';
+  typeText(text,x,y,{size:Math.max(14,size),color,align,role:size>=24?'section':'body'});
 }
 function artNoise(n) { return ((Math.sin(n*127.1+311.7)*43758.5453)%1+1)%1; }
 function paintCity() {
@@ -147,7 +147,7 @@ function paintCity() {
   }
   if(sea) {
     artRect(canvas.width/2-143,canvas.height-34,286,25,'#102d35dd',12);
-    artText(sea==='MEGA'?'ÁGUAS TÓXICAS / TRAVESSIA ESPECIAL':'ÁGUAS TÓXICAS / MANTENHA-SE NO ALTO',canvas.width/2,canvas.height-17,10,ART.paper,'center');
+    typeText(sea==='MEGA'?'ÁGUAS TÓXICAS / TRAVESSIA ESPECIAL':'ÁGUAS TÓXICAS / MANTENHA-SE NO ALTO',canvas.width/2,canvas.height-17,{role:'label',size:14,color:ART.paper,align:'center',maxWidth:canvas.width-24});
   }
 }
 function paintPlatforms() {
@@ -195,7 +195,8 @@ function paintItems() {
     ctx.restore();
     if(isPlayerNearItem(item)) {
       const label={RECICLAVEL:'C · RECICLAR',ELETRONICO:'X · GUARDAR',SEMENTE:'SEMENTE',CANTEIRO:'Y · PLANTAR'}[item.type];
-      artRect(x-49,y-46,98,20,ART.ink,7); artText(label,x,y-32,10,ART.paper,'center');
+      const labelX=Math.max(74,Math.min(canvas.width-74,x));
+      artRect(labelX-70,y-49,140,25,ART.ink,7); typeText(label,labelX,y-32,{role:'label',size:14,color:ART.paper,align:'center',maxWidth:128});
     }
   }
 }
@@ -247,7 +248,7 @@ function paintEcoponto() {
   artRect(x,y,w,h,ART.ink,6); artRect(x+5,y+7,w-10,h-12,'#447e72',3);
   for(let k=15;k<w;k+=18) artRect(x+k,y+9,2,h-20,'#345f59');
   artRect(x-8,y-9,w+16,17,'#bed0ad',4); artRect(x+14,y+25,w-28,50,ART.ink,5);
-  artText('ECOPONTO',x+w/2,y+47,17,ART.paper,'center'); artText('RECUPERAR / RENOVAR',x+w/2,y+64,8,ART.mint,'center');
+  artText('ECOPONTO',x+w/2,y+47,17,ART.paper,'center'); typeText('RECUPERAR / RENOVAR',x+w/2,y+66,{role:'label',size:14,color:ART.mint,align:'center',maxWidth:w-32});
   artRect(x+24,y+95,w-48,h-105,ART.ink,8); artRect(x+31,y+104,w-62,49,'#88aaa0',4);
   artLine([[x+45,y+130],[x+65,y+116],[x+87,y+130]],ART.ink,4);
   artRect(x+45,y+173,w-90,10,'#b4d59e',3);
@@ -294,22 +295,4 @@ function paintParticles() {
     ctx.restore();
   }
 }
-function paintHUD() {
-  const compact=canvas.width<1000, pad=compact?10:22;
-  const w=Math.max(1,canvas.width-pad*2), top=12;
-  artRect(pad,top,w,compact?89:60,'#102d35ee',12);
-  artRect(pad+12,top+12,3,34,ART.mint,2);
-  artText(playerName||'JOGADOR',pad+24,top+23,11,ART.mint);
-  artText(String(scoreBase+Math.floor(distance)).padStart(5,'0'),pad+24,top+45,23,ART.paper);
-  const base=compact?pad+15:pad+Math.max(160,w*.28), yy=compact?top+75:top+36;
-  artText('VIDAS',base,yy-13,8,'#91b4ae');
-  for(let i=0;i<3;i++) { artOval(base+5+i*16,yy-1,5,5,i<lives?ART.copper:'#34555b'); }
-  const gap=compact?Math.max(65,(w-90)/4):Math.max(85,(w-260)/4);
-  artText(`FASE ${String(phase).padStart(2,'0')}`,base+gap,yy,11);
-  artText(`CARGA ${eWasteInBag}`,base+gap*2,yy,11);
-  artText(`SEMENTES ${seedsInBag}`,base+gap*3,yy,11);
-  artRect(canvas.width-110,12,80,32,'#315b61',8); artText('II   P',canvas.width-70,33,13,ART.paper,'center');
-  const barW=Math.min(180,w*.27);
-  artRect(pad,compact?108:80,barW,4,'#183e46',2); artRect(pad,compact?108:80,barW*Math.min(1,totalCleanActions/120),4,ART.mint,2);
-  artText('CIDADE EM REGENERAÇÃO',pad,compact?125:97,8,'#dfdfc0');
-}
+function paintHUD() { paintTypeHUD(); }

@@ -19,8 +19,7 @@ function introCaption(text,l,opacity) {
   const y=l.h-104,fog=ctx.createLinearGradient(0,y-30,0,l.h);
   fog.addColorStop(0,'rgba(9,23,29,0)');fog.addColorStop(1,'rgba(9,23,29,.85)');
   ctx.fillStyle=fog;ctx.fillRect(0,y-30,l.w,l.h-y+30);
-  ctx.font=`bold ${l.portrait?17:23}px Georgia, serif`;
-  ctx.fillStyle='#eee7d1';ctx.textAlign='center';ctx.fillText(text,l.w/2,y);ctx.restore();
+  typeParagraph(text,l.w/2,y,l.w-48,{role:'body',size:l.portrait?23:24,color:'#eee7d1',align:'center',lineHeight:30});ctx.restore();
 }
 function introCity(l,t,shore,travel) {
   for(let layer=0;layer<3;layer++) {
@@ -142,7 +141,7 @@ function drawIntro() {
     else {
       artRect(0,0,canvas.width,canvas.height,'#09141c');
       ctx.save();ctx.scale(l.scale,l.scale);
-      artText('ESPAÇO / ENTER / CLIQUE PARA PULAR',l.w/2,l.h-35,11,'#dbe2cf','center');ctx.restore();
+      typeText('ESPAÇO / ENTER / CLIQUE PARA PULAR',l.w/2,l.h-35,{role:'label',size:18,color:'#dbe2cf',align:'center',maxWidth:l.w-36});ctx.restore();
       return;
     }
   }
@@ -165,6 +164,6 @@ function drawIntro() {
   if(veil>0)artRect(0,0,canvas.width,canvas.height,`rgba(224,202,166,${veil})`);
   const reveal=introEase((seconds-13.3)/2.2);
   ctx.save();ctx.scale(l.scale,l.scale);ctx.globalAlpha=1-reveal;
-  artText('ESPAÇO / ENTER / CLIQUE PARA PULAR',l.w/2,l.h-35,11,'#dbe2cf','center');
+  typeText('ESPAÇO / ENTER / CLIQUE PARA PULAR',l.w/2,l.h-35,{role:'label',size:18,color:'#dbe2cf',align:'center',maxWidth:l.w-36});
   drawIntroSound(l);ctx.restore();
 }

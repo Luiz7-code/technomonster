@@ -4,6 +4,7 @@ const introPanorama=new Image();introPanorama.src='assets/intro/panorama-mar-de-
 const introLandingDetail=new Image();introLandingDetail.src='assets/intro/terraco-aproximacao.png';
 const introDebrisLayer=new Image();introDebrisLayer.src='assets/intro/lixo-flutuante-camadas.png';
 const introSproutLayer=new Image();introSproutLayer.src='assets/intro/broto-camada.png';
+let introSproutParts=null;
 const introColdPlates=new WeakMap();
 const introDebrisCrops=[[60,241,444,235],[601,234,421,231],[1154,211,393,278],[1652,226,492,252]];
 function introImageReady(image) {return image.complete&&image.naturalWidth>0;}
@@ -23,11 +24,11 @@ function introCamera(l,t) {
   const startX=clamp(W*(l.portrait?.39:.015),0,W-l.w/base);
   const endX=clamp(hx-l.w*.7/base,0,W-l.w/base);
   const startY=clamp(H*.52-l.h/base*.5,0,H-l.h/base);
-  const targetScreenX=l.portrait?.54:.62;
+  const targetScreenX=l.portrait?(l.w/l.h<.4?.5:.54):.62;
   const startScreenY=(hy-startY)*base/l.h;
   const cameraX=z>0?hx-l.w*(.7+(targetScreenX-.7)*z)/scale:startX+(endX-startX)*pan;
   const cameraY=z>0?hy-l.h*(startScreenY+(.76-startScreenY)*z)/scale:startY;
-  return {W,H,hx,hy,heroH,sproutX:hx+H*(l.portrait?.027:.105),scale,vw,vh,x:clamp(cameraX,0,W-vw),y:clamp(cameraY,0,H-vh),pan,approach:z};
+  return {W,H,hx,hy,heroH,sproutX:hx+H*(l.portrait?.042:.105),scale,vw,vh,x:clamp(cameraX,0,W-vw),y:clamp(cameraY,0,H-vh),pan,approach:z};
 }
 function introColdPlate(image) {
   if(!introColdPlates.has(image)) {
@@ -39,24 +40,67 @@ function introColdPlate(image) {
   }
   return introColdPlates.get(image);
 }
+function introSproutPose(t,reduced=titleReducedMotion.matches) {
+  const seed=introEase((t-9.95)/.35);
+  if(reduced)return {seed,split:1,stem:1,left:1,right:1,sway:0};
+  return {seed,split:introEase((t-10.25)/.45),stem:introEase((t-10.4)/1.15),
+    left:introEase((t-11.05)/1.15),right:introEase((t-11.22)/1.15),
+    sway:Math.sin(Math.max(0,t-12.37)*1.4)*.025*introEase((t-12.37)/.5)};
+}
+function prepareIntroSproutParts() {
+  if(introSproutParts)return introSproutParts;
+  if(!introImageReady(introSproutLayer))return null;
+  // Runtime sprite masks keep the original painted leaves and seed. Only their
+  // transparent cutouts move; the ground and surrounding artwork are untouched.
+  const cut=(box,polygon,pivot)=>{
+    const [x,y,w,h]=box,c=document.createElement('canvas');c.width=w;c.height=h;
+    const p=c.getContext('2d');p.beginPath();
+    polygon.forEach(([px,py],i)=>i?p.lineTo(px-x,py-y):p.moveTo(px-x,py-y));
+    p.closePath();p.clip();p.drawImage(introSproutLayer,-x,-y);
+    return {image:c,x:x-pivot[0],y:y-pivot[1],w,h};
+  };
+  introSproutParts={
+    left:cut([174,378,470,240],[[174,378],[540,378],[644,552],[621,590],[540,618],[174,618]],[621,566]),
+    right:cut([636,170,430,432],[[636,170],[1066,170],[1066,560],[703,560],[656,602],[636,560]],[658,572]),
+    seedLeft:cut([407,943,162,194],[[407,943],[552,943],[569,996],[535,1071],[518,1137],[407,1137]],[535,1132]),
+    seedRight:cut([518,1008,135,129],[[550,1008],[653,1008],[653,1137],[518,1137],[535,1071]],[535,1132])
+  };
+  return introSproutParts;
+}
 function introPanoramaSprout(a,t) {
-  const grow=introEase((t-9.8)/1.7),seed=introEase((t-9.3)/.5);
-  if(!seed)return;
-  const x=a.sproutX,y=a.hy;
-  const size=a.H*.021,stem=size*grow;
-  ctx.save();ctx.globalAlpha=seed;
-  ctx.shadowColor=ITEM_GLOW.SEMENTE.color;ctx.shadowBlur=6;
-  if(introImageReady(introSproutLayer)) {
-    const height=size*(.12+.88*grow),width=size*876/958*(.4+.6*grow);
-    ctx.drawImage(introSproutLayer,180,175,876,958,x-width*.41,y-height,width,height);
-    ctx.restore();return;
+  const pose=introSproutPose(t);if(!pose.seed)return;
+  const size=a.H*.024,k=size/958,parts=prepareIntroSproutParts();
+  ctx.save();ctx.translate(a.sproutX,a.hy);ctx.globalAlpha=pose.seed;
+  // The seed's contact point stays fixed throughout growth and wind motion.
+  artOval(0,.1,size*.14,size*.035,'#28322888');
+  ctx.shadowColor=ITEM_GLOW.SEMENTE.color;ctx.shadowBlur=5;
+  const tip={x:size*(.12*pose.stem+pose.sway),y:-size*(.09+.5*pose.stem)};
+  if(pose.stem>0) {
+    const stemPath=()=>{ctx.beginPath();ctx.moveTo(0,-size*.055);
+      ctx.bezierCurveTo(size*.18*pose.stem,-size*.23*pose.stem,tip.x-size*.07,tip.y+size*.14*pose.stem,tip.x,tip.y);};
+    ctx.save();ctx.globalAlpha*=introEase(pose.stem*4);ctx.lineCap='round';
+    const ink=ctx.createLinearGradient(-size*.06,0,size*.16,0);
+    ink.addColorStop(0,'#697c39');ink.addColorStop(.55,'#98a751');ink.addColorStop(1,'#d4c878');
+    stemPath();ctx.strokeStyle=ink;ctx.lineWidth=size*.047;ctx.stroke();
+    ctx.shadowBlur=0;stemPath();ctx.strokeStyle='#d6ce8a88';ctx.lineWidth=size*.012;ctx.stroke();ctx.restore();
+    const leaf=(side,open)=>{
+      // Folded leaves remain attached to the growing tip, opening at staggered
+      // times. Their hinge rotates independently instead of stretching the plant.
+      const visible=introEase(pose.stem*3),length=.16+.84*open;
+      ctx.save();ctx.translate(tip.x,tip.y);ctx.rotate(side<0?(1-open)*1.05:-(1-open)*.55);
+      ctx.globalAlpha*=visible;ctx.scale(length*(.38+.62*open),length);
+      if(parts){const p=side<0?parts.left:parts.right;ctx.drawImage(p.image,p.x*k,p.y*k,p.w*k,p.h*k);}
+      else {titleLeaf(side*size*.19,-size*.07,size*.22,side<0?'#a4b763':'#bdc878',side*.35);}
+      ctx.restore();
+    };
+    leaf(-1,pose.left);leaf(1,pose.right);
   }
-  artOval(x,y-3-(1-seed)*18,3.5,4.5,'#c5b57e');ctx.shadowBlur=0;
-  artLine([[x,y-3],[x-2*grow,y-stem*.55],[x+2*grow,y-stem]],'#8baf6d',2.5);
+  // Two seed shells open slightly in place, in front of the emerging stem.
   for(const side of [-1,1]) {
-    const ly=y-stem*(side===-1?.62:.87),lx=x+side*size*.13*grow;
-    titleLeaf(lx,ly,size*.23*grow,side===-1?'#9dbf70':'#bbd18a',side*.45);
-    artLine([[x,ly+2],[lx+side*size*.13*grow,ly-2]],'#d5d9a0',.7);
+    ctx.save();ctx.translate(side*size*.018*pose.split,0);ctx.rotate(side*pose.split*.1);
+    if(parts){const p=side<0?parts.seedLeft:parts.seedRight;ctx.drawImage(p.image,p.x*k,p.y*k,p.w*k,p.h*k);}
+    else artOval(side*size*.036,-size*.05,size*.065,size*.09,side<0?'#aa8051':'#cfab69');
+    ctx.restore();
   }
   ctx.restore();
 }

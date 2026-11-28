@@ -1,3 +1,7 @@
+@font-face { font-family: 'TM Display'; src: url('../assets/fonts/Fraunces.ttf') format('truetype'); font-weight: 100 900; font-style: normal; font-display: swap; }
+@font-face { font-family: 'TM Display'; src: url('../assets/fonts/Fraunces-Italic.ttf') format('truetype'); font-weight: 100 900; font-style: italic; font-display: swap; }
+@font-face { font-family: 'TM Text'; src: url('../assets/fonts/NunitoSans.ttf') format('truetype'); font-weight: 200 900; font-style: normal; font-display: swap; }
+
 * {
   margin: 0;
   padding: 0;
@@ -11,7 +15,7 @@ html, body {
   height: 100vh;
   overflow: hidden;
   background-color: #102d35;
-  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+  font-family: 'TM Text', 'Segoe UI', sans-serif;
   user-select: none;
 }
 

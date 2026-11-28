@@ -7,14 +7,14 @@ const TITLE_STATES = ['MENU', 'TUTORIAL', 'CONTROLS', 'RECORDS', 'CREDITS'];
 const titleUI = { pending: null, start: 0, hover: -1, focus: [0,0,0,0,0], last: 0 };
 function titleLayout() {
   const portrait=canvas.width/canvas.height<1.1;
-  const w=portrait?540:1280,h=portrait?Math.max(940,540*canvas.height/canvas.width):720;
+  const w=portrait?440:Math.min(1280,Math.max(960,canvas.width)),h=portrait?Math.max(900,440*canvas.height/canvas.width):720;
   const scale=Math.min(canvas.width/w,canvas.height/h);
   return {portrait,w,h,scale,x:(canvas.width-w*scale)/2,y:(canvas.height-h*scale)/2};
 }
 function titleButtons(l,menuPreview=false) {
   if(gameState!=='MENU'&&!menuPreview) return [{x:l.w/2-115,y:l.h-104,w:230,h:48}];
-  const x=l.portrait?54:84,y=l.portrait?296:305;
-  return TITLE_OPTIONS.map((_,i)=>({x,y:y+i*62,w:l.portrait?345:350,h:51}));
+  const x=l.portrait?42:84,y=l.portrait?296:305;
+  return TITLE_OPTIONS.map((_,i)=>({x,y:y+i*62,w:l.portrait?l.w-84:350,h:51}));
 }
 function titleActivate(index) {
   if(titleUI.pending!==null) return;
@@ -154,39 +154,42 @@ function titleScene(l,t) {
 function titleLogo(l) { paintedTitleLogo(l); }
 function titleButton(b,label,selected,amount,index) { paintedTitleButton(b,label,selected,amount,index); }
 function titleWrap(text,x,y,maxWidth,size=17,color='#d7ddce',lineHeight=25) {
-  ctx.font=`600 ${size}px "Trebuchet MS", sans-serif`;
-  let line='';for(const word of text.split(' ')) {
-    const next=line?line+' '+word:word;
-    if(ctx.measureText(next).width>maxWidth && line) {artText(line,x,y,size,color);y+=lineHeight;line=word;} else line=next;
-  }
-  if(line){artText(line,x,y,size,color);y+=lineHeight;}return y;
+  size=Math.max(18,size);
+  return typeParagraph(text,x,y,maxWidth,{size,color,lineHeight:Math.max(lineHeight,Math.ceil(size*1.35))});
 }
 function titlePanel(l) {
-  const x=l.portrait?24:300,w=l.portrait?l.w-48:680,top=l.portrait?55:70;
+  const w=l.portrait?l.w-32:720,x=(l.w-w)/2,top=l.portrait?40:45;
   artRect(x,top,w,l.h-top-132,'#142d38f5',12);
   artRect(x+28,top+30,3,32,'#a8df9b',1);
   const name={TUTORIAL:'COMO RECUPERAR A CIDADE',CONTROLS:'CONTROLES',RECORDS:'RECORDES',CREDITS:'CRÉDITOS'}[gameState];
-  artText(name,x+45,top+53,gameState==='TUTORIAL'?23:30,'#e9e6ca');
+  typeText(name,x+45,top+53,{role:'section',size:gameState==='TUTORIAL'?24:30,color:'#e9e6ca',maxWidth:w-65,minSize:20});
   let y=top+102;
   if(gameState==='TUTORIAL') {
     const steps=[['01 / ATRAVESSE','A corrida é automática. Use o pulo duplo para alcançar plataformas e evitar drones, barris e o mar tóxico.'],['02 / RECUPERE','Azul: coma recicláveis com C. Laranja: guarde eletrônicos com X. Vermelho: perigo. Comer eletrônicos tira uma vida.'],['03 / CULTIVE','Verde: sementes e canteiros. Sementes são coletadas por proximidade; use Y perto de um canteiro para plantar.'],['04 / TRANSFORME','No ecoponto, cada eletrônico rende 2 sementes e 30 pontos. Continue para a próxima fase e veja a cidade se recuperar.']];
-    for(const [heading,body] of steps) {artText(heading,x+32,y,13,'#a8df9b');y=titleWrap(body,x+32,y+24,w-64,16,'#d7ddce',22)+24;}
+    for(const [heading,body] of steps) {typeText(heading,x+28,y,{role:'label',size:15,color:'#a8df9b'});y=titleWrap(body,x+28,y+25,w-56,18,'#d7ddce',25)+18;}
   } else if(gameState==='CONTROLS') {
     for(const [key,action] of [['↑ / W / ESPAÇO','Pular · pressione duas vezes para pulo duplo'],['C','Comer reciclável · eletrônico causa dano'],['X','Guardar lixo eletrônico'],['Y','Plantar uma semente no canteiro'],['P / ESC','Pausar ou continuar'],['R','Reiniciar a corrida'],['SETAS / ENTER','Navegar e confirmar nos menus']]) {
-      artText(key,x+32,y,13,'#a8df9b');y=titleWrap(action,x+195,y,w-227,14,'#d7ddce',19)+23;
+      typeText(key,x+28,y,{role:'label',size:15,color:'#a8df9b'});
+      y=l.portrait?titleWrap(action,x+28,y+24,w-56,18)+16:titleWrap(action,x+212,y,w-240,18)+18;
     }
   } else if(gameState==='RECORDS') {
-    artText('AS MELHORES CORRIDAS DESTE NAVEGADOR',x+32,y,12,'#a8df9b');y+=46;
+    y=typeParagraph('AS MELHORES CORRIDAS DESTE NAVEGADOR',x+28,y,w-56,{role:'label',size:14,color:'#a8df9b'})+24;
     let scores=[];try{scores=getScores();if(!Array.isArray(scores))scores=[];}catch{}
     if(!scores.length) titleWrap('A cidade está esperando seu primeiro recorde. Termine uma corrida para entrar no ranking.',x+32,y,w-64,20);
-    scores.slice(0,5).forEach((s,i)=>{artRect(x+24,y-24,w-48,48,i===0?'#35534c':'#223b46',5);artText(String(i+1).padStart(2,'0'),x+38,y+7,20,i===0?'#e7cc94':'#9bb5ab');artText(String(s.name).slice(0,10),x+100,y+7,19);artText(`${s.score} PTS`,x+w-40,y+7,18,'#d7ddce','right');y+=62;});
+    scores.slice(0,5).forEach((s,i)=>{
+      artRect(x+24,y-24,w-48,48,i===0?'#35534c':'#223b46',5);
+      typeText(String(i+1).padStart(2,'0'),x+38,y+7,{role:'score',size:20,color:i===0?'#e7cc94':'#9bb5ab'});
+      typeText(String(s.name).slice(0,10),x+83,y+7,{role:'body',size:19,maxWidth:w-248,minSize:14});
+      typeText(`${s.score} PTS`,x+w-40,y+7,{role:'score',size:18,color:'#d7ddce',align:'right',maxWidth:122,minSize:12});y+=62;
+    });
   } else {
-    artText('TECHNOMONSTER',x+32,y,27,'#a8df9b');
-    y=titleWrap('Projeto educacional desenvolvido por estudantes do SENAI.',x+32,y+48,w-64,20)+28;
-    y=titleWrap('Um jogo sobre reciclagem, responsabilidade ambiental e a transformação de uma cidade pelas nossas ações.',x+32,y,w-64,18)+28;
+    typeText('TECHNOMONSTER',x+28,y,{role:'section',size:26,color:'#a8df9b',maxWidth:w-56});
+    y=titleWrap('Projeto educacional desenvolvido por estudantes do SENAI.',x+28,y+40,w-56,18)+16;
+    y=titleWrap('Um jogo sobre reciclagem, responsabilidade ambiental e a transformação de uma cidade pelas nossas ações.',x+28,y,w-56,18)+16;
     artText('TRILHA SONORA',x+32,y,12,'#a8df9b');
     y=titleWrap('Pixel Dreams — djlofi (partidas).',x+32,y+27,w-64,16);
-    titleWrap('Primeiro Broto — trilha original da abertura, criada com assistência do Codex por síntese digital, sem samples externos.',x+32,y+20,w-64,15);
+    y=titleWrap('Primeiro Broto — trilha original da abertura, criada com assistência do Codex por síntese digital, sem samples externos.',x+32,y+12,w-64,18);
+    titleWrap('Fontes: Fraunces e Nunito Sans · SIL Open Font License 1.1.',x+32,y+16,w-64,18);
   }
   titleButton(titleButtons(l)[0],'VOLTAR',true,0,0);
 }
@@ -202,8 +205,8 @@ function drawTitleScreen(menuPreview=false) {
   if(gameState==='MENU'||menuPreview) {
     titleLogo(l);
     titleButtons(l,true).forEach((b,i)=>{titleUI.focus[i]+=((menuOption===i?1:0)-titleUI.focus[i])*(1-Math.exp(-dt/90));titleButton(b,TITLE_OPTIONS[i][0],menuOption===i,titleUI.focus[i],i);});
-    artText('↑ ↓  ESCOLHER     ENTER  CONFIRMAR',l.portrait?60:92,l.h-55,11,'#b3c3b5');
-    artText('PROJETO SENAI  /  TECHNOMONSTER',l.portrait?60:92,l.h-32,9,'#809f9b');
+    typeText('↑ ↓  ESCOLHER   ENTER  CONFIRMAR',l.portrait?42:92,l.h-55,{role:'label',size:14,color:'#c5d5c8',maxWidth:l.portrait?l.w-84:420});
+    typeText('PROJETO SENAI / TECHNOMONSTER',l.portrait?42:92,l.h-30,{role:'small',size:13,color:'#a8bdb4',maxWidth:l.portrait?l.w-84:420});
   } else titlePanel(l);
   if(titleUI.pending!==null) {
     const progress=Math.min(1,(now-titleUI.start)/220);
